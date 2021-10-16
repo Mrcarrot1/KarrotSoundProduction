@@ -22,3 +22,5 @@
 /home/mrcarrot/KarrotSoundProduction/obj/Debug/net5.0/ref/KarrotSoundProduction.dll
 /home/mrcarrot/KarrotSoundProduction/obj/Debug/net5.0/KarrotSoundProduction.pdb
 /home/mrcarrot/KarrotSoundProduction/obj/Debug/net5.0/KarrotSoundProduction.genruntimeconfig.cache
+/home/mrcarrot/KarrotSoundProduction/bin/Debug/net5.0/KarrotObjectNotation.dll
+/home/mrcarrot/KarrotSoundProduction/bin/Debug/net5.0/CSCore.dll

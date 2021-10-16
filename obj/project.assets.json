@@ -79,6 +79,15 @@
           "build/GtkSharp.targets": {}
         }
       },
+      "KarrotObjectNotation/1.1.2": {
+        "type": "package",
+        "compile": {
+          "lib/net5.0/KarrotObjectNotation.dll": {}
+        },
+        "runtime": {
+          "lib/net5.0/KarrotObjectNotation.dll": {}
+        }
+      },
       "PangoSharp/3.24.24.34": {
         "type": "package",
         "dependencies": {
@@ -168,6 +177,19 @@
         "lib/netstandard2.0/GtkSharp.dll"
       ]
     },
+    "KarrotObjectNotation/1.1.2": {
+      "sha512": "OovH54Oi7C1g6VzbRYKTlGSvjU9qrmxrpRlvaJ6Tw1qcy6kFVz2WhfgPj8WRUMjSNSkzVJgCCdQf4d6QQ0UENw==",
+      "type": "package",
+      "path": "karrotobjectnotation/1.1.2",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.md",
+        "karrotobjectnotation.1.1.2.nupkg.sha512",
+        "karrotobjectnotation.nuspec",
+        "lib/net5.0/KarrotObjectNotation.dll"
+      ]
+    },
     "PangoSharp/3.24.24.34": {
       "sha512": "QpBEIiE29sxkewdW7l7rVRJR1p3SGoPauHrjm0A3yxpYxj+St5x45weHI8jquMJAZBUdVQuXYHSZDW1lQeJ+PQ==",
       "type": "package",
@@ -183,7 +205,8 @@
   },
   "projectFileDependencyGroups": {
     "net5.0": [
-      "GtkSharp >= 3.24.24.*"
+      "GtkSharp >= 3.24.24.*",
+      "KarrotObjectNotation >= 1.1.2"
     ]
   },
   "packageFolders": {
@@ -226,6 +249,10 @@
           "GtkSharp": {
             "target": "Package",
             "version": "[3.24.24.*, )"
+          },
+          "KarrotObjectNotation": {
+            "target": "Package",
+            "version": "[1.1.2, )"
           }
         },
         "imports": [

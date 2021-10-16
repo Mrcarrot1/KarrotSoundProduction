@@ -11,7 +11,10 @@ namespace KarrotSoundProduction
 
         private int _counter;
 
-        public MainWindow() : this(new Builder("MainWindow.glade")) { }
+        public MainWindow() : this(new Builder("MainWindow.glade")) 
+        { 
+            this.KeyReleaseEvent += Key_Released;
+        }
 
         private MainWindow(Builder builder) : base(builder.GetRawOwnedObject("MainWindow"))
         {
@@ -29,7 +32,12 @@ namespace KarrotSoundProduction
         private void Button1_Clicked(object sender, EventArgs a)
         {
             _counter++;
-            _label1.Text = "Hello World! This button has been clicked " + _counter + " time(s).";
+            
+        }
+
+        private void Key_Released(object sender, KeyReleaseEventArgs e)
+        {
+            _label1.Text = $"You have pressed and released {e.Event.Key} (code {e.Event.HardwareKeycode})";
         }
     }
 }

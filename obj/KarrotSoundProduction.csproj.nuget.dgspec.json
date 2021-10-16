@@ -41,6 +41,10 @@
             "GtkSharp": {
               "target": "Package",
               "version": "[3.24.24.*, )"
+            },
+            "KarrotObjectNotation": {
+              "target": "Package",
+              "version": "[1.1.2, )"
             }
           },
           "imports": [

@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
+    <PublishSingleFile>false</PublishSingleFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="GtkSharp" Version="3.24.24.*" />
+    <PackageReference Include="KarrotObjectNotation" Version="1.1.2" />
   </ItemGroup>
 
 </Project>

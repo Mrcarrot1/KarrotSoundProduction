@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "UedmEKfAGA9Ba7dLQ1hoA7+ditQqYw2CE39YFyCkKNq23QyebPMU8jabdV8vKIuZnlfjJn9t2SZTQUtYW4FMqA==",
+  "dgSpecHash": "0oT+Yy1fA7F72lCPQmCDr7wqJuDP0J1Vq4Wbut7UIzP8Zynb7o0FLTxpMpLud+J8r9fz5LC8ZXDshMfz36BgLg==",
   "success": true,
   "projectFilePath": "/home/mrcarrot/KarrotSoundProduction/KarrotSoundProduction.csproj",
   "expectedPackageFiles": [
@@ -10,6 +10,7 @@
     "/home/mrcarrot/.nuget/packages/giosharp/3.24.24.34/giosharp.3.24.24.34.nupkg.sha512",
     "/home/mrcarrot/.nuget/packages/glibsharp/3.24.24.34/glibsharp.3.24.24.34.nupkg.sha512",
     "/home/mrcarrot/.nuget/packages/gtksharp/3.24.24.34/gtksharp.3.24.24.34.nupkg.sha512",
+    "/home/mrcarrot/.nuget/packages/karrotobjectnotation/1.1.2/karrotobjectnotation.1.1.2.nupkg.sha512",
     "/home/mrcarrot/.nuget/packages/pangosharp/3.24.24.34/pangosharp.3.24.24.34.nupkg.sha512",
     "/home/mrcarrot/.nuget/packages/microsoft.aspnetcore.app.ref/5.0.0/microsoft.aspnetcore.app.ref.5.0.0.nupkg.sha512"
   ],
