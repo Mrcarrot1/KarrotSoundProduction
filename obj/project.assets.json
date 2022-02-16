@@ -111,7 +111,7 @@
         }
       }
     },
-    "net6.0/osx-x64": {
+    "net6.0/win-x64": {
       "AtkSharp/3.24.24.34": {
         "type": "package",
         "dependencies": {
@@ -344,19 +344,19 @@
     ]
   },
   "packageFolders": {
-    "/home/mrcarrot/.nuget/packages/": {}
+    "C:\\Users\\caleb\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/mrcarrot/KarrotSoundProduction/KarrotSoundProduction.csproj",
+      "projectUniqueName": "C:\\Users\\caleb\\Documents\\GitHub\\KarrotSoundProduction.csproj",
       "projectName": "KarrotSoundProduction",
-      "projectPath": "/home/mrcarrot/KarrotSoundProduction/KarrotSoundProduction.csproj",
-      "packagesPath": "/home/mrcarrot/.nuget/packages/",
-      "outputPath": "/home/mrcarrot/KarrotSoundProduction/obj/",
+      "projectPath": "C:\\Users\\caleb\\Documents\\GitHub\\KarrotSoundProduction.csproj",
+      "packagesPath": "C:\\Users\\caleb\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\caleb\\Documents\\GitHub\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/home/mrcarrot/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\caleb\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net6.0"
@@ -405,24 +405,20 @@
         "warn": true,
         "downloadDependencies": [
           {
-            "name": "Microsoft.AspNetCore.App.Ref",
-            "version": "[6.0.0, 6.0.0]"
+            "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
+            "version": "[6.0.2, 6.0.2]"
           },
           {
-            "name": "Microsoft.AspNetCore.App.Runtime.osx-x64",
-            "version": "[6.0.0, 6.0.0]"
+            "name": "Microsoft.NETCore.App.Crossgen2.win-x64",
+            "version": "[6.0.2, 6.0.2]"
           },
           {
-            "name": "Microsoft.NETCore.App.Crossgen2.linux-x64",
-            "version": "[6.0.0, 6.0.0]"
+            "name": "Microsoft.NETCore.App.Runtime.win-x64",
+            "version": "[6.0.2, 6.0.2]"
           },
           {
-            "name": "Microsoft.NETCore.App.Host.osx-x64",
-            "version": "[6.0.0, 6.0.0]"
-          },
-          {
-            "name": "Microsoft.NETCore.App.Runtime.osx-x64",
-            "version": "[6.0.0, 6.0.0]"
+            "name": "Microsoft.WindowsDesktop.App.Runtime.win-x64",
+            "version": "[6.0.2, 6.0.2]"
           }
         ],
         "frameworkReferences": {
@@ -430,11 +426,11 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/6.0.100/RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.200\\RuntimeIdentifierGraph.json"
       }
     },
     "runtimes": {
-      "osx-x64": {
+      "win-x64": {
         "#import": []
       }
     }

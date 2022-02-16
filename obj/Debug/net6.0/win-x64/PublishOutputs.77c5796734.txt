@@ -1,0 +1,2 @@
+C:\Users\caleb\Documents\GitHub\bin\Debug\net6.0\win-x64\publish\KarrotSoundProduction.pdb
+C:\Users\caleb\Documents\GitHub\bin\Debug\net6.0\win-x64\publish\KarrotSoundProduction.exe
