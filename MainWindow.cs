@@ -1,13 +1,18 @@
 using System;
 using Gtk;
 using UI = Gtk.Builder.ObjectAttribute;
+using NetCoreAudio;
 
 namespace KarrotSoundProduction
 {
     class MainWindow : Window
     {
+        private Player player = new Player();
+
         [UI] private Label _label1 = null;
         [UI] private Button _button1 = null;
+        [UI] private Button _button2 = null;
+        [UI] private Entry _entry = null;
 
         private int _counter;
 
@@ -21,7 +26,9 @@ namespace KarrotSoundProduction
             builder.Autoconnect(this);
 
             DeleteEvent += Window_DeleteEvent;
+            DeleteEvent += Button2_Clicked; //Temporary fix so sounds should stop when the window closes
             _button1.Clicked += Button1_Clicked;
+            _button2.Clicked += Button2_Clicked;
         }
 
         private void Window_DeleteEvent(object sender, DeleteEventArgs a)
@@ -31,8 +38,11 @@ namespace KarrotSoundProduction
 
         private void Button1_Clicked(object sender, EventArgs a)
         {
-            _counter++;
-            
+            player.Play(_entry.Text);
+        }
+        private void Button2_Clicked(object sender, EventArgs a)
+        {
+            player.Stop();
         }
 
         private void Key_Released(object sender, KeyReleaseEventArgs e)
