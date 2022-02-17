@@ -88,15 +88,6 @@
           "lib/net5.0/KarrotObjectNotation.dll": {}
         }
       },
-      "NetCoreAudio/1.6.3": {
-        "type": "package",
-        "compile": {
-          "lib/netstandard2.0/NetCoreAudio.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard2.0/NetCoreAudio.dll": {}
-        }
-      },
       "PangoSharp/3.24.24.34": {
         "type": "package",
         "dependencies": {
@@ -111,7 +102,7 @@
         }
       }
     },
-    "net6.0/osx-x64": {
+    "net6.0/linux-x64": {
       "AtkSharp/3.24.24.34": {
         "type": "package",
         "dependencies": {
@@ -196,15 +187,6 @@
         },
         "runtime": {
           "lib/net5.0/KarrotObjectNotation.dll": {}
-        }
-      },
-      "NetCoreAudio/1.6.3": {
-        "type": "package",
-        "compile": {
-          "lib/netstandard2.0/NetCoreAudio.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard2.0/NetCoreAudio.dll": {}
         }
       },
       "PangoSharp/3.24.24.34": {
@@ -309,20 +291,6 @@
         "lib/net5.0/KarrotObjectNotation.dll"
       ]
     },
-    "NetCoreAudio/1.6.3": {
-      "sha512": "7Awjc/Z9t4dAM3UDWaSxM0SMJera+htKjtDeI0y8Bc07f9HvlOEc8GrUVjUqt3LfSIlm4pcFdYZ3nDZHVum0VQ==",
-      "type": "package",
-      "path": "netcoreaudio/1.6.3",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "LICENSE",
-        "icon.jpg",
-        "lib/netstandard2.0/NetCoreAudio.dll",
-        "netcoreaudio.1.6.3.nupkg.sha512",
-        "netcoreaudio.nuspec"
-      ]
-    },
     "PangoSharp/3.24.24.34": {
       "sha512": "QpBEIiE29sxkewdW7l7rVRJR1p3SGoPauHrjm0A3yxpYxj+St5x45weHI8jquMJAZBUdVQuXYHSZDW1lQeJ+PQ==",
       "type": "package",
@@ -339,8 +307,7 @@
   "projectFileDependencyGroups": {
     "net6.0": [
       "GtkSharp >= 3.24.24.*",
-      "KarrotObjectNotation >= 1.1.3",
-      "NetCoreAudio >= 1.6.3"
+      "KarrotObjectNotation >= 1.1.3"
     ]
   },
   "packageFolders": {
@@ -387,10 +354,6 @@
           "KarrotObjectNotation": {
             "target": "Package",
             "version": "[1.1.3, )"
-          },
-          "NetCoreAudio": {
-            "target": "Package",
-            "version": "[1.6.3, )"
           }
         },
         "imports": [
@@ -409,7 +372,7 @@
             "version": "[6.0.0, 6.0.0]"
           },
           {
-            "name": "Microsoft.AspNetCore.App.Runtime.osx-x64",
+            "name": "Microsoft.AspNetCore.App.Runtime.linux-x64",
             "version": "[6.0.0, 6.0.0]"
           },
           {
@@ -417,11 +380,11 @@
             "version": "[6.0.0, 6.0.0]"
           },
           {
-            "name": "Microsoft.NETCore.App.Host.osx-x64",
+            "name": "Microsoft.NETCore.App.Host.linux-x64",
             "version": "[6.0.0, 6.0.0]"
           },
           {
-            "name": "Microsoft.NETCore.App.Runtime.osx-x64",
+            "name": "Microsoft.NETCore.App.Runtime.linux-x64",
             "version": "[6.0.0, 6.0.0]"
           }
         ],
@@ -434,7 +397,7 @@
       }
     },
     "runtimes": {
-      "osx-x64": {
+      "linux-x64": {
         "#import": []
       }
     }
