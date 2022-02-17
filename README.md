@@ -6,6 +6,23 @@ Supported media types (will) include FLAC, WAV, MP3, AAC, and WMA.
 This software was designed as a replacement for the now-defunct EXP Soundboard.
 As such, it has full backwards compatibility with EXP's configuration files, without the reliance on outdated software.
 
+# Build Instructions
+KSP is not currently available in binary form. If you would like to run the very early test versions currently available, follow these instructions.
+
+1. Ensure that you have the following installed:
+   .NET SDK >= 6.0
+   GTK >= 3.24(may be installed automatically on restore)
+   (Optional) GNU or similar Make utility
+   (Linux) PulseAudio(or a replacement such as pipewire-pulse) and mpg123
+2. Clone the repository locally.
+3. Navigate into the repository's root directory.
+4. `dotnet restore`
+5. Run either `make` or an individual `dotnet publish` command. Note that if you do not use make, you may need to [specify a runtime](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-publish#options).
+   * To build in release configuration rather than the default of debug, run `make release` or add `-c Release` to the `dotnet publish` command.
+6. Navigate to `bin/Debug/net6.0/<runtime>/KarrotSoundProduction/publish` and run the executable found there.
+
+
+
 
 KSP uses a modified version of NetCoreAudio, originally published on GitHub by mobiletechtracker.
 The original project's license is as follows.
