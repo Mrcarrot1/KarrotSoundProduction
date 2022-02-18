@@ -36,7 +36,7 @@ namespace NetCoreAudio
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 _internalPlayer = new MacPlayer();
             else
-                throw new Exception("No implementation exist for the current OS");
+                throw new Exception("No implementation exists for the current OS");
 
             _internalPlayer.PlaybackFinished += OnPlaybackFinished;
         }

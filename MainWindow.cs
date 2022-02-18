@@ -49,6 +49,7 @@ namespace KarrotSoundProduction
             });
             player.PlaybackFinished += PlayerFinished;
             currentlyPlaying.Add(player);
+            _label1.Text = $"Currently Playing: {currentlyPlaying.Count}";
         }
         private void Button2_Clicked(object sender, EventArgs a)
         {
@@ -61,12 +62,12 @@ namespace KarrotSoundProduction
             {
                 SoundboardConfiguration.CurrentConfig.Keybindings[e.Event.HardwareKeycode].TriggerKey();
             }
-            _label1.Text = $"You have pressed and released {e.Event.Key} (code {e.Event.HardwareKeycode})";
         }
 
         private void PlayerFinished(object sender, EventArgs e)
         {
             currentlyPlaying.Remove((Player)sender);
+            _label1.Text = $"Currently Playing: {currentlyPlaying.Count}";
         }
 
         private void KillSoundsKey(object sender, KeyTriggerEventArgs e)
@@ -83,6 +84,7 @@ namespace KarrotSoundProduction
                     await player.Stop();
                 });
             }
+            _label1.Text = $"Currently Playing: {currentlyPlaying.Count}";
         }
     }
 }
