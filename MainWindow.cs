@@ -85,7 +85,6 @@ namespace KarrotSoundProduction
             {
                 await SoundboardConfiguration.CurrentConfig.Keybindings[e.Event.Key].TriggerKey();
             }
-            //_label1.Text = $"You have pressed and released {e.Event.Key} (code {e.Event.HardwareKeycode})";
         }
 
         private void PlayerFinished(object sender, EventArgs e)
