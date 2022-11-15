@@ -146,8 +146,8 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="exitConfirmButton">
-                <property name="label" translatable="yes">Exit</property>
+              <object class="GtkButton">
+                <property name="label" translatable="yes">Save And Exit</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
@@ -156,6 +156,19 @@
                 <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="exitConfirmButton">
+                <property name="label" translatable="yes">Exit Without Saving</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
               </packing>
             </child>
           </object>
@@ -173,6 +186,7 @@
               <object class="GtkImage">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="xpad">30</property>
                 <property name="icon-name">dialog-warning</property>
                 <property name="icon_size">6</property>
               </object>
@@ -186,7 +200,9 @@
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Are you sure you want to exit?</property>
+                <property name="xpad">30</property>
+                <property name="ypad">30</property>
+                <property name="label" translatable="yes">Are you sure you want to exit? You have unsaved changes.</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -196,7 +212,7 @@
             </child>
           </object>
           <packing>
-            <property name="expand">True</property>
+            <property name="expand">False</property>
             <property name="fill">True</property>
             <property name="position">1</property>
           </packing>
@@ -632,18 +648,28 @@
   </object>
   <object class="GtkListStore" id="liststore1">
     <columns>
-      <!-- column-name Int -->
-      <column type="gint"/>
+      <!-- column-name Hotkey -->
+      <column type="gchararray"/>
+      <!-- column-name Playing -->
+      <column type="gboolean"/>
+      <!-- column-name File -->
+      <column type="gchararray"/>
     </columns>
     <data>
       <row>
-        <col id="0">4</col>
+        <col id="0" translatable="yes">A</col>
+        <col id="1">True</col>
+        <col id="2" translatable="yes">File.wav</col>
       </row>
       <row>
-        <col id="0">23</col>
+        <col id="0" translatable="yes"/>
+        <col id="1">False</col>
+        <col id="2" translatable="yes"/>
       </row>
       <row>
-        <col id="0">234</col>
+        <col id="0" translatable="yes"/>
+        <col id="1">False</col>
+        <col id="2" translatable="yes"/>
       </row>
     </data>
   </object>
@@ -653,6 +679,8 @@
       <object class="GtkTreeView">
         <property name="visible">True</property>
         <property name="can-focus">True</property>
+        <property name="hscroll-policy">natural</property>
+        <property name="vscroll-policy">natural</property>
         <property name="model">liststore1</property>
         <property name="enable-grid-lines">both</property>
         <child internal-child="selection">
