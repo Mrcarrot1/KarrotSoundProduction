@@ -8,7 +8,17 @@ namespace NetCoreAudio
 {
     public class Player : IPlayer
     {
-        public int CurrentVolume;
+        public int CurrentVolume
+        {
+            get
+            {
+                return _internalPlayer.CurrentVolume;
+            }
+            set
+            {
+                _internalPlayer.CurrentVolume = value;
+            }
+        }
 
         private readonly IPlayer _internalPlayer;
 
@@ -27,16 +37,47 @@ namespace NetCoreAudio
         /// </summary>
         public bool Paused => _internalPlayer.Paused;
 
-        public Player()
+        public Player(bool useNAudio = true)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                _internalPlayer = new WindowsPlayer();
+            {
+                if (useNAudio)
+                    _internalPlayer = new WindowsPlayerNAudio();
+                else
+                    _internalPlayer = new WindowsPlayer();
+            }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                _internalPlayer = new LinuxPlayer();
+            {
+                if (KarrotSoundProduction.Utils.CheckForCommand("pw-play"))
+                {
+                    _internalPlayer = new LinuxPlayerNative();
+                }
+                else
+                {
+                    LinuxPlayer internalPlayer = new LinuxPlayer();
+
+                    if (KarrotSoundProduction.Utils.CheckForCommand("paplay"))
+                        internalPlayer.Backend = LinuxPlayer.PlayerBackend.PulseAudio;
+                    else if (KarrotSoundProduction.Utils.CheckForCommand("aplay"))
+                        internalPlayer.Backend = LinuxPlayer.PlayerBackend.ALSA;
+                    else
+                        throw new Exception("Missing dependency: Pipewire, PulseAudio, or ALSA backend");
+
+                    if (!KarrotSoundProduction.Utils.CheckForCommand("mpg123"))
+                        throw new Exception("Missing dependency: mpg123");
+
+                    if (!KarrotSoundProduction.Utils.CheckForCommand("flac"))
+                        throw new Exception("Missing dependency: flac");
+
+                    _internalPlayer = internalPlayer;
+                }
+            }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 _internalPlayer = new MacPlayer();
             else
-                throw new Exception("No implementation exist for the current OS");
+                throw new Exception("No NetCoreAudio implementation exists for the current OS!");
+
+            _internalPlayer.CurrentVolume = 100;
 
             _internalPlayer.PlaybackFinished += OnPlaybackFinished;
         }
@@ -91,6 +132,19 @@ namespace NetCoreAudio
         {
             CurrentVolume = percent;
             await _internalPlayer.SetVolume(percent);
+        }
+
+        public string GetPlayerBackend()
+        {
+            return _internalPlayer switch
+            {
+                LinuxPlayer => $"Linux({(_internalPlayer as LinuxPlayer).Backend})",
+                LinuxPlayerNative => "Linux(Native Pipewire)",
+                MacPlayer => $"MacOS",
+                WindowsPlayer => $"Windows(NetCoreAudio)",
+                WindowsPlayerNAudio => $"Windows(NAudio)",
+                _ => "Unknown backend"
+            };
         }
     }
 }

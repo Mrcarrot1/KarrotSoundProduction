@@ -2,11 +2,14 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace NetCoreAudio.Players
 {
     internal abstract class UnixPlayerBase : IPlayer
     {
+        public int CurrentVolume { get; set; }
+
         private Process _process = null;
 
         internal const string PauseProcessCommand = "kill -STOP {0}";
@@ -23,8 +26,21 @@ namespace NetCoreAudio.Players
         public async Task Play(string fileName)
         {
             await Stop();
+            if (Path.GetExtension(fileName).ToLower() == ".flac")
+            {
+                if (!Directory.Exists("temp"))
+                {
+                    Directory.CreateDirectory("temp");
+                }
+                Console.WriteLine($"Decoding {fileName}");
+                string wavFileName = $"temp/{Path.GetFileName(Path.ChangeExtension(fileName, ".wav"))}";
+                if (!File.Exists(wavFileName))
+                    Process.Start($"\flac", $"-fd '{fileName}' -o '{wavFileName}'").WaitForExit();
+                fileName = wavFileName;
+            }
+            Console.WriteLine($"Playing {fileName}");
             var BashToolName = GetBashCommand(fileName);
-            _process = StartBashProcess($"{BashToolName} '{fileName}'");
+            _process = StartBashProcess($"{BashToolName} {EscapeFileName(fileName)}");
             _process.EnableRaisingEvents = true;
             _process.Exited += HandlePlaybackFinished;
             _process.ErrorDataReceived += HandlePlaybackFinished;
@@ -101,5 +117,13 @@ namespace NetCoreAudio.Players
         }
 
         public abstract Task SetVolume(int percent);
+
+        private static string EscapeFileName(string fileName)
+        {
+            return fileName
+                .Replace(" ", "\\ ")
+                .Replace("\"", "\\\"")
+                .Replace("'", "\\'");
+        }
     }
 }

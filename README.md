@@ -10,10 +10,11 @@ As such, it has full backwards compatibility with EXP's configuration files, wit
 KSP is not currently available in binary form. If you would like to run the very early test versions currently available, follow these instructions.
 
 1. Ensure that you have the following installed:
-   .NET SDK >= 6.0
-   GTK >= 3.24(may be installed automatically on restore)
-   (Optional) GNU or similar Make utility
-   (Linux) PulseAudio(or a replacement such as pipewire-pulse) and mpg123
+   * .NET SDK >= 6.0
+   * GTK >= 3.24(may be installed automatically on restore)
+   * (Optional) GNU or similar Make utility
+   * (Linux) PulseAudio OR Pipewire(set up to play audio) OR ALSA, mpg123
+   * (Linux/Mac OSX) FLAC decoder available on path as `flac`
 2. Clone the repository locally.
 3. Navigate into the repository's root directory.
 4. `dotnet restore`
@@ -22,11 +23,13 @@ KSP is not currently available in binary form. If you would like to run the very
 6. Navigate to `bin/Debug/net6.0/<runtime>/KarrotSoundProduction/publish` and run the executable found there.
 
 
-
+# License
+KSP as a complete product is licensed under the Mozilla Public License, version 2.0. For more details, see LICENSE in this directory.
 
 KSP uses a modified version of NetCoreAudio, originally published on GitHub by mobiletechtracker.
 The original project's license is as follows.
 
+```
 MIT License
 
 Copyright (c) 2020 mobiletechtracker
@@ -48,3 +51,17 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+```
+
+KSP also uses NAudio to play audio on Windows.
+That project's license is as follows.
+
+```
+Copyright 2020 Mark Heath
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```

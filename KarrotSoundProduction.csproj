@@ -2,11 +2,12 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
     <PublishReadyToRun>true</PublishReadyToRun>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,11 +15,15 @@
     <EmbeddedResource Include="**\*.glade">
       <LogicalName>%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>
+    <Resource Include="pw_interface.so" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="GtkSharp" Version="3.24.24.*" />
-    <PackageReference Include="KarrotObjectNotation" Version="1.1.3" />
+    <PackageReference Include="KarrotObjectNotation" Version="1.1.5" />
+    <PackageReference Include="NAudio.Asio" Version="2.0.0" />
+    <PackageReference Include="NAudio.Core" Version="2.0.0" />
+    <PackageReference Include="NAudio.WinMM" Version="2.0.1" />
   </ItemGroup>
 
 </Project>

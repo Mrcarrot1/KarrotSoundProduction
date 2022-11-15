@@ -1,6 +1,12 @@
+/*  
+*  This Source Code Form is subject to the terms of the Mozilla Public
+*  License, v. 2.0. If a copy of the MPL was not distributed with this
+*  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+*/
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using Gtk;
 using KarrotObjectNotation;
 using System.Threading.Tasks;
@@ -30,19 +36,19 @@ namespace KarrotSoundProduction
         /// The integer key code that represents the key used to play the sound.
         /// </summary>
         /// <value></value>
-        public ushort KeyCode { get; private set; }
+        public Gdk.Key Key { get; private set; }
         /// <summary>
         /// The integer key code that represents the key used to stop the sound.
         /// </summary>
         /// <value></value>
-        public ushort StopKeyCode { get; private set; }
+        public Gdk.Key? StopKey { get; private set; }
 
         /// <summary>
         /// The integer key code that represents the key used to instantly stop the sound.
         /// Not generally used. If set, does not prevent the global kill binding from killing this sound.
         /// </summary>
         /// <value></value>
-        public ushort KillKeyCode { get; private set; }
+        public Gdk.Key KillKey { get; private set; }
 
         /// <summary>
         /// The time, in milliseconds, that it takes to fade the sound in.
@@ -75,8 +81,8 @@ namespace KarrotSoundProduction
             KONNode output = new KONNode("SOUND");
             output.AddValue("filePath", FilePath);
             output.AddValue("absoluteFilePath", AbsoluteFilePath);
-            output.AddValue("keyCode", KeyCode);
-            output.AddValue("stopKeyCode", StopKeyCode);
+            output.AddValue("keyCode", (int)Key);
+            output.AddValue("stopKeyCode", (int)StopKey);
             output.AddValue("fadeInTime", FadeInTime);
             output.AddValue("fadeOutTime", FadeOutTime);
             output.AddValue("maxVolume", MaxVolume);
@@ -91,15 +97,22 @@ namespace KarrotSoundProduction
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <returns></returns>
-        public void PlaySound(object sender, KeyTriggerEventArgs e)
+        public async Task PlaySound(object sender, KeyTriggerEventArgs e)
         {
-            Task.Run(async () => await player.SetVolume(0));
-            Task.Run(async () => await player.Play(AbsoluteFilePath));
-            while(player.CurrentVolume < 100)
+            Player player = new();
+            int initialVolume = FadeInTime >= 100 ? 0 : 100;
+            await player.SetVolume(initialVolume);
+            SoundboardConfiguration.CurrentConfig.CurrentlyPlaying.Add(player);
+            await player.Play(AbsoluteFilePath);
+            if (FadeInTime >= 100)
             {
-                Task.Run(async () => await player.SetVolume(player.CurrentVolume + 1));
-                Thread.Sleep(FadeInTime / 100);
+                while (player.CurrentVolume < 100)
+                {
+                    await player.SetVolume(player.CurrentVolume + 1);
+                    await Task.Delay(FadeInTime / 100);
+                }
             }
+            SoundboardConfiguration.CurrentConfig.CurrentlyPlaying.Remove(player);
         }
 
         /// <summary>
@@ -110,7 +123,16 @@ namespace KarrotSoundProduction
         /// <returns></returns>
         public void StopSound(object sender, KeyTriggerEventArgs e)
         {
-            
+            if (FadeOutTime >= 100)
+            {
+                while (player.CurrentVolume > 0)
+                {
+                    Task.Run(async () => await player.SetVolume(player.CurrentVolume - 1));
+                    Thread.Sleep(FadeOutTime / 100);
+                }
+            }
+            Task.Run(async () => await player.Stop());
+            SoundboardConfiguration.CurrentConfig.CurrentlyPlaying.Remove(player);
         }
 
         /// <summary>
@@ -122,15 +144,16 @@ namespace KarrotSoundProduction
         public void KillSound(object sender, KeyTriggerEventArgs e)
         {
             Task.Run(async () => await player.Stop());
+            SoundboardConfiguration.CurrentConfig.CurrentlyPlaying.Remove(player);
         }
 
-        public SoundConfiguration(string filePath, ushort keyCode, ushort stopKeyCode = 0, string absoluteFilePath = null, int fadeInTime = 0, int fadeOutTime = 0, float maxVolume = 100, float minVolume = 0)
+        public SoundConfiguration(string filePath, Gdk.Key key, Gdk.Key? stopKey = null, string absoluteFilePath = null, int fadeInTime = 0, int fadeOutTime = 0, float maxVolume = 100, float minVolume = 0)
         {
             FilePath = filePath;
             AbsoluteFilePath = absoluteFilePath;
 
-            KeyCode = keyCode;
-            StopKeyCode = stopKeyCode;
+            Key = key;
+            StopKey = stopKey;
 
             FadeInTime = fadeInTime;
             FadeOutTime = fadeOutTime;
@@ -138,15 +161,22 @@ namespace KarrotSoundProduction
             MaxVolume = maxVolume;
             MinVolume = minVolume;
 
-            if(SoundboardConfiguration.CurrentConfig.Keybindings.ContainsKey(keyCode))
+            player = new();
+
+            if (SoundboardConfiguration.CurrentConfig.Keybindings.ContainsKey(key))
             {
-                SoundboardConfiguration.CurrentConfig.Keybindings[keyCode].KeyTriggered += this.PlaySound;
+                SoundboardConfiguration.CurrentConfig.Keybindings[key].KeyTriggered += (sender, e) => Task.Run(async() => await this.PlaySound(sender, e));
             }
             else
             {
-                SoundboardConfiguration.CurrentConfig.Keybindings.Add(keyCode, new Keybinding(keyCode));
-                SoundboardConfiguration.CurrentConfig.Keybindings[keyCode].KeyTriggered += PlaySound;
+                SoundboardConfiguration.CurrentConfig.Keybindings.Add(key, new Keybinding(key));
+                SoundboardConfiguration.CurrentConfig.Keybindings[key].KeyTriggered += (sender, e) => Task.Run(async() => await this.PlaySound(sender, e));
             }
+        }
+
+        public override string ToString()
+        {
+            return $"{FilePath}\t{Key}\t{FadeInTime}\t{FadeOutTime}";
         }
     }
 }

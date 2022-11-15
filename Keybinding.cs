@@ -1,40 +1,46 @@
+/*  
+*  This Source Code Form is subject to the terms of the Mozilla Public
+*  License, v. 2.0. If a copy of the MPL was not distributed with this
+*  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+*/
 using System;
+using System.Threading.Tasks;
 using Gtk;
 
 namespace KarrotSoundProduction
 {
     public class Keybinding
     {
-        public ushort KeyCode { get; private set; }
+        public Gdk.Key Key { get; private set; }
 
         public event EventHandler<KeyTriggerEventArgs> KeyTriggered;
 
-        private protected virtual void OnKeyTrigger(KeyTriggerEventArgs e)
+        private protected virtual async Task OnKeyTrigger(KeyTriggerEventArgs e)
         {
             EventHandler<KeyTriggerEventArgs> raiseEvent = KeyTriggered;
 
-            if(raiseEvent != null)
+            if (raiseEvent != null)
             {
-                raiseEvent(this, e);
+                await Task.Run(() => { raiseEvent(this, e); });
             }
         }
 
-        public void TriggerKey()
+        public async Task TriggerKey()
         {
-            OnKeyTrigger(new KeyTriggerEventArgs(KeyCode));
+            await OnKeyTrigger(new KeyTriggerEventArgs(Key));
         }
 
-        public Keybinding(ushort keyCode)
+        public Keybinding(Gdk.Key key)
         {
-            KeyCode = keyCode;
+            Key = key;
         }
     }
     public class KeyTriggerEventArgs : EventArgs
     {
-        public ushort KeyCode;
-        public KeyTriggerEventArgs(ushort keyCode)
+        public Gdk.Key Key;
+        public KeyTriggerEventArgs(Gdk.Key key)
         {
-            KeyCode = keyCode;
+            Key = key;
         }
     }
 }

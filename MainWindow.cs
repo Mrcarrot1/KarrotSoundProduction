@@ -1,6 +1,12 @@
+/*  
+*  This Source Code Form is subject to the terms of the Mozilla Public
+*  License, v. 2.0. If a copy of the MPL was not distributed with this
+*  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+*/
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 using Gtk;
 using UI = Gtk.Builder.ObjectAttribute;
 using NetCoreAudio;
@@ -9,80 +15,110 @@ namespace KarrotSoundProduction
 {
     class MainWindow : Window
     {
-        private List<Player> currentlyPlaying = new List<Player>();
-
         [UI] private Label _label1 = null;
         [UI] private Button _button1 = null;
         [UI] private Button _button2 = null;
         [UI] private Entry _entry = null;
+        [UI] private Button addSoundButton = null;
+        [UI] private Grid mainGrid = null;
+        [UI] private ImageMenuItem _aboutButton = null;
+        [UI] private ImageMenuItem _openButton = null;
 
-        public MainWindow() : this(new Builder("MainWindow.glade")) 
-        { 
+        public MainWindow() : this(new Builder("MainWindow.glade"))
+        {
             this.KeyReleaseEvent += Key_Released;
         }
 
         private MainWindow(Builder builder) : base(builder.GetRawOwnedObject("MainWindow"))
         {
             SoundboardConfiguration.CurrentConfig = new SoundboardConfiguration();
-            SoundboardConfiguration.CurrentConfig.Keybindings.Add(23, new Keybinding(23));
-            SoundboardConfiguration.CurrentConfig.Keybindings[23].KeyTriggered += KillSoundsKey;
+            SoundboardConfiguration.CurrentConfig.Keybindings.Add(Gdk.Key.Tab, new Keybinding(Gdk.Key.Tab));
+            SoundboardConfiguration.CurrentConfig.Keybindings[Gdk.Key.Tab].KeyTriggered += KillSoundsKey;
 
             builder.Autoconnect(this);
 
             DeleteEvent += Window_DeleteEvent;
             _button1.Clicked += Button1_Clicked;
             _button2.Clicked += Button2_Clicked;
+            _aboutButton.Activated += ShowAbout;
+            _openButton.Activated += ShowOpen;
+            addSoundButton.Clicked += AddSoundClicked;
         }
 
-        private void Window_DeleteEvent(object sender, DeleteEventArgs a)
+        private async void Window_DeleteEvent(object sender, DeleteEventArgs a)
         {
-            KillAllSounds();
+            await KillAllSounds();
             Application.Quit();
         }
 
-        private void Button1_Clicked(object sender, EventArgs a)
+        private async void Button1_Clicked(object sender, EventArgs a)
         {
             Player player = new Player();
-            Task.Run(async () =>
-            {
-                await player.Play(_entry.Text);
-            });
+            var task = player.Play("/home/mrcarrot/Music/Kaguya/S3 Insert- My Nonfiction/01.My Nonfiction.wav");
             player.PlaybackFinished += PlayerFinished;
-            currentlyPlaying.Add(player);
+            SoundboardConfiguration.CurrentConfig.CurrentlyPlaying.Add(player);
+            await task;
         }
-        private void Button2_Clicked(object sender, EventArgs a)
+        private async void Button2_Clicked(object sender, EventArgs a)
         {
-            KillAllSounds();
+            await KillAllSounds();
         }
 
-        private void Key_Released(object sender, KeyReleaseEventArgs e)
+        private void AddSoundClicked(object sender, EventArgs e)
         {
-            if(SoundboardConfiguration.CurrentConfig.Keybindings.ContainsKey(e.Event.HardwareKeycode))
+            Label hotkeyLabel = new("F");
+            hotkeyLabel.Name = "hotkeylabeltest";
+            Label playingLabel = new("No");
+            Label fileNameLabel = new("test.wav");
+            mainGrid.Add(hotkeyLabel);
+            mainGrid.Add(playingLabel);
+            mainGrid.Add(fileNameLabel);
+            AddSoundDialog dialog = new();
+            dialog.Show();
+            mainGrid.InsertRow(0);
+        }
+
+        private async void Key_Released(object sender, KeyReleaseEventArgs e)
+        {
+            Console.WriteLine($"Received {e.Event.Key}");
+            if (SoundboardConfiguration.CurrentConfig.Keybindings.ContainsKey(e.Event.Key))
             {
-                SoundboardConfiguration.CurrentConfig.Keybindings[e.Event.HardwareKeycode].TriggerKey();
+                await SoundboardConfiguration.CurrentConfig.Keybindings[e.Event.Key].TriggerKey();
             }
-            _label1.Text = $"You have pressed and released {e.Event.Key} (code {e.Event.HardwareKeycode})";
+            //_label1.Text = $"You have pressed and released {e.Event.Key} (code {e.Event.HardwareKeycode})";
         }
 
         private void PlayerFinished(object sender, EventArgs e)
         {
-            currentlyPlaying.Remove((Player)sender);
+            SoundboardConfiguration.CurrentConfig.CurrentlyPlaying.Remove((Player)sender);
         }
 
-        private void KillSoundsKey(object sender, KeyTriggerEventArgs e)
+        private async void KillSoundsKey(object sender, KeyTriggerEventArgs e)
         {
-            KillAllSounds();
+            await KillAllSounds();
         }
 
-        private void KillAllSounds()
+        private async Task KillAllSounds()
         {
-            foreach(Player player in currentlyPlaying.ToArray())
+            foreach (Player player in SoundboardConfiguration.CurrentConfig.CurrentlyPlaying.ToArray())
             {
-                Task.Run(async () =>
-                {
-                    await player.Stop();
-                });
+                await player.Stop();
             }
+            SoundboardConfiguration.CurrentConfig.CurrentlyPlaying.RemoveAll(x => true);
+        }
+
+        private void ShowAbout(object sender, EventArgs e)
+        {
+            AboutDialog aboutDialog = new();
+            this.Application.AddWindow(aboutDialog);
+            aboutDialog.Show();
+        }
+
+        private void ShowOpen(object sender, EventArgs e)
+        {
+            FileChooserDialog fileChooser = new("Select File", this, FileChooserAction.Open, "_Cancel", ResponseType.Cancel, "_Open", ResponseType.Accept);
+            int response = fileChooser.Run();
+            Console.WriteLine(response);
         }
     }
 }

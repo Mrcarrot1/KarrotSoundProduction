@@ -7,6 +7,8 @@ namespace NetCoreAudio.Interfaces
     {
         event EventHandler PlaybackFinished;
 
+        int CurrentVolume { get; set; }
+
         bool Playing { get; }
         bool Paused { get; }
 
