@@ -16,13 +16,16 @@ namespace KarrotSoundProduction
     {
         [UI] private Button exitCancelButton = null;
         [UI] private Button exitConfirmButton = null;
+        [UI] private Button saveAndExitButton = null;
+
         public ExitConfirmationDialog() : this(new Builder("MainWindow.glade")) 
         { 
             exitCancelButton.Clicked += Cancel;
             exitConfirmButton.Clicked += Confirm;
+            saveAndExitButton.Clicked += SaveAndExit;
         }
 
-        private ExitConfirmationDialog(Builder builder) : base(builder.GetRawOwnedObject("AboutDialog"))
+        private ExitConfirmationDialog(Builder builder) : base(builder.GetRawOwnedObject("ExitConfirmationDialog"))
         {
             builder.Autoconnect(this);
         }
@@ -30,6 +33,12 @@ namespace KarrotSoundProduction
         private void Cancel(object sender, EventArgs e)
         {
             this.Destroy();
+        }
+
+        private async void SaveAndExit(object sender, EventArgs e)
+        {
+            if (await Program.MainWindow.SaveFile())
+                Application.Quit();
         }
 
         private void Confirm(object sender, EventArgs e)

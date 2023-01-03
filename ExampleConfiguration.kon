@@ -1,18 +1,18 @@
 SOUNDBOARD_CONFIGURATION
 {
     $name = Name
+    %formatVersion = 1
     SOUND
     {
         $filePath = path/to/sound/file.extension //Starting at the config file's location
-        $absoluteFilePath = /absolute/path/to/sound/file.extension //NOTE- not required- if in conflict with filePath, will be used only as a fallback.
-        
-        ~^keyCode = 67 //Key code- note that KON does not yet implement ~ for short(UPDATE: KON 1.1.0 added support mere hours after I wrote this, it's almost like I am also the developer of that project)
-        ~^stopKeyCode = 83 //Stop key code- not required, defaults to 0
+                
+        %keyCode = 67 //Key code- note that KON does not yet implement ~ for short(UPDATE: KON 1.1.0 added support mere hours after I wrote this, it's almost like I am also the developer of that project)
+        %stopKeyCode = 83 //Stop key code- not required, defaults to 0
 
         %fadeInTime = 1500 //The time, in milliseconds, the sound takes to fade in
         %fadeOutTime = 1500 //The time, in milliseconds, the sound takes to fade out
 
-        !maxVolume = 100 //The maximum volume the sound will hit when fading up and/or the volume the sound will play at
+        !maxVolume = 1 //The maximum volume the sound will hit when fading up and/or the volume the sound will play at
         !minVolume = 0 //The volume the sound will start at when fading up
     }
 }

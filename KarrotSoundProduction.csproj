@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
@@ -15,7 +15,9 @@
     <EmbeddedResource Include="**\*.glade">
       <LogicalName>%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>
-    <Resource Include="pw_interface.so" />
+    <EmbeddedResource Include="pw_interface.so">
+      <LogicalName>pw_interface.so</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>

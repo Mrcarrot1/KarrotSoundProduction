@@ -32,8 +32,10 @@ namespace KarrotSoundProduction
         {
             cancelButton.Clicked += Cancel;
             confirmButton.Clicked += Confirm;
+            confirmButton.Sensitive = false;
             hotkeyRecordButton.Clicked += RecordHotkey;
             this.KeyReleaseEvent += KeyReleased;
+            soundFileChooser.SelectionChanged += SelectionChanged;
         }
 
         private AddSoundDialog(Builder builder) : base(builder.GetRawOwnedObject("AddSoundDialog"))
@@ -44,6 +46,11 @@ namespace KarrotSoundProduction
         private void Cancel(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void SelectionChanged(object sender, EventArgs e)
+        {
+            confirmButton.Sensitive = soundFileChooser.File != null;
         }
 
         private void KeyReleased(object sender, KeyReleaseEventArgs e)
@@ -73,9 +80,7 @@ namespace KarrotSoundProduction
             }
             if (key == null && !(sender is Button button && button.Name == "warningOkButton"))
             {
-                WarningDialog dialog = new WarningDialog("Please choose a hotkey.", "Ignore");
-                dialog.Ignored += this.Confirm;
-                dialog.Show();
+                new ErrorDialog("Please choose a hotkey.").Show();
                 return;
             }
             if (!float.TryParse(fadeInTimeEntry.Text, out fadeInTime))
@@ -88,27 +93,16 @@ namespace KarrotSoundProduction
                 new ErrorDialog("Invalid fade out time.").Show();
                 return;
             }
-            string fileName = soundFileChooser.File.Path;
-            if (System.IO.Path.GetExtension(fileName).ToLower() == ".flac")
-            {
-                if (!Directory.Exists("temp"))
-                {
-                    Directory.CreateDirectory("temp");
-                }
-                Console.WriteLine($"Decoding {fileName}");
-                Stopwatch stopwatch = new();
-                stopwatch.Start();
-                string wavFileName = $"temp/{System.IO.Path.GetFileName(System.IO.Path.ChangeExtension(fileName, ".wav"))}";
-                if (!File.Exists(wavFileName))
-                    Process.Start($"flac", $"-fd \"{fileName}\" -o \"{wavFileName}\"").WaitForExit();
-                stopwatch.Stop();
-                Console.WriteLine($"Decode elapsed time: {stopwatch.ElapsedMilliseconds} ms");
-                fileName = wavFileName;
-            }
-            SoundConfiguration sound = new(fileName, key.Value, null, soundFileChooser.File.Path, (int)(fadeInTime * 1000), (int)(fadeOutTime * 1000), 100, 0);
-            SoundboardConfiguration.CurrentConfig.Sounds.Add(sound);
+            string originalFileName = System.IO.Path.GetFullPath(soundFileChooser.File.Path);
+            string fileName = Utils.GetWavePath(originalFileName);
+            Console.WriteLine(Utils.GetFileFormat(fileName));
+            
+            Console.WriteLine(fileName);
+            SoundConfiguration sound = new(fileName, key.Value, null, originalFileName, (int)(fadeInTime * 1000), (int)(fadeOutTime * 1000), 100, 0);
+            SoundboardConfiguration.CurrentConfig.AddSound(sound);
             Console.WriteLine(SoundboardConfiguration.CurrentConfig);
             this.Close();
+            Program.MainWindow.UpdateMainText();
         }
     }
 }

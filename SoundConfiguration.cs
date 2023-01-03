@@ -23,15 +23,15 @@ namespace KarrotSoundProduction
         private Player player;
 
         /// <summary>
-        /// The file path to the sound in question, relative to the location of the configuration file.
+        /// The file path to the sound in question.
         /// </summary>
         /// <value></value>
         public string FilePath { get; private set; }
         /// <summary>
-        /// The absolute file path to the sound in question, used only as a fallback if the relative file path is not found.
+        /// The path to the original sound file. Differs from FilePath only when the file was decoded from its original format.
         /// </summary>
         /// <value></value>
-        public string AbsoluteFilePath { get; private set; }
+        public string OriginalFilePath { get; private set; }
         /// <summary>
         /// The integer key code that represents the key used to play the sound.
         /// </summary>
@@ -79,10 +79,10 @@ namespace KarrotSoundProduction
         public KONNode GetNode()
         {
             KONNode output = new KONNode("SOUND");
-            output.AddValue("filePath", FilePath);
-            output.AddValue("absoluteFilePath", AbsoluteFilePath);
+            output.AddValue("filePath", OriginalFilePath);
             output.AddValue("keyCode", (int)Key);
-            output.AddValue("stopKeyCode", (int)StopKey);
+            if (StopKey != null)
+                output.AddValue("stopKeyCode", (int)StopKey);
             output.AddValue("fadeInTime", FadeInTime);
             output.AddValue("fadeOutTime", FadeOutTime);
             output.AddValue("maxVolume", MaxVolume);
@@ -97,13 +97,13 @@ namespace KarrotSoundProduction
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <returns></returns>
-        public async Task PlaySound(object sender, KeyTriggerEventArgs e)
+        public async void PlaySound(object sender, KeyTriggerEventArgs e)
         {
             Player player = new();
             int initialVolume = FadeInTime >= 100 ? 0 : 100;
             await player.SetVolume(initialVolume);
             SoundboardConfiguration.CurrentConfig.CurrentlyPlaying.Add(player);
-            await player.Play(AbsoluteFilePath);
+            await player.Play(FilePath);
             if (FadeInTime >= 100)
             {
                 while (player.CurrentVolume < 100)
@@ -121,17 +121,17 @@ namespace KarrotSoundProduction
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <returns></returns>
-        public void StopSound(object sender, KeyTriggerEventArgs e)
+        public async void StopSound(object sender, KeyTriggerEventArgs e)
         {
             if (FadeOutTime >= 100)
             {
                 while (player.CurrentVolume > 0)
                 {
-                    Task.Run(async () => await player.SetVolume(player.CurrentVolume - 1));
+                    await player.SetVolume(player.CurrentVolume - 1);
                     Thread.Sleep(FadeOutTime / 100);
                 }
             }
-            Task.Run(async () => await player.Stop());
+            await player.Stop();
             SoundboardConfiguration.CurrentConfig.CurrentlyPlaying.Remove(player);
         }
 
@@ -141,16 +141,16 @@ namespace KarrotSoundProduction
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <returns></returns>
-        public void KillSound(object sender, KeyTriggerEventArgs e)
+        public async void KillSound(object sender, KeyTriggerEventArgs e)
         {
-            Task.Run(async () => await player.Stop());
+            await player.Stop();
             SoundboardConfiguration.CurrentConfig.CurrentlyPlaying.Remove(player);
         }
 
-        public SoundConfiguration(string filePath, Gdk.Key key, Gdk.Key? stopKey = null, string absoluteFilePath = null, int fadeInTime = 0, int fadeOutTime = 0, float maxVolume = 100, float minVolume = 0)
+        public SoundConfiguration(string filePath, Gdk.Key key, Gdk.Key? stopKey = null, string originalFilePath = null, int fadeInTime = 0, int fadeOutTime = 0, float maxVolume = 100, float minVolume = 0)
         {
             FilePath = filePath;
-            AbsoluteFilePath = absoluteFilePath;
+            OriginalFilePath = originalFilePath;
 
             Key = key;
             StopKey = stopKey;
@@ -162,21 +162,16 @@ namespace KarrotSoundProduction
             MinVolume = minVolume;
 
             player = new();
-
-            if (SoundboardConfiguration.CurrentConfig.Keybindings.ContainsKey(key))
-            {
-                SoundboardConfiguration.CurrentConfig.Keybindings[key].KeyTriggered += (sender, e) => Task.Run(async() => await this.PlaySound(sender, e));
-            }
-            else
-            {
-                SoundboardConfiguration.CurrentConfig.Keybindings.Add(key, new Keybinding(key));
-                SoundboardConfiguration.CurrentConfig.Keybindings[key].KeyTriggered += (sender, e) => Task.Run(async() => await this.PlaySound(sender, e));
-            }
         }
 
-        public override string ToString()
+        public override string ToString() => ToString(true);
+
+        public string ToString(bool withKey = true)
         {
-            return $"{FilePath}\t{Key}\t{FadeInTime}\t{FadeOutTime}";
+            if (withKey)
+                return $"{Key}\t\t{Path.GetFileNameWithoutExtension(FilePath)}";
+            else
+                return Path.GetFileNameWithoutExtension(FilePath);
         }
     }
 }

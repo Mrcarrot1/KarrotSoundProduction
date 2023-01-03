@@ -7,8 +7,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using System.IO;
 using Gtk;
+using GLib;
 using UI = Gtk.Builder.ObjectAttribute;
+using Task = System.Threading.Tasks.Task;
 using NetCoreAudio;
 
 namespace KarrotSoundProduction
@@ -20,9 +23,16 @@ namespace KarrotSoundProduction
         [UI] private Button _button2 = null;
         [UI] private Entry _entry = null;
         [UI] private Button addSoundButton = null;
-        [UI] private Grid mainGrid = null;
-        [UI] private ImageMenuItem _aboutButton = null;
-        [UI] private ImageMenuItem _openButton = null;
+        [UI] private Button editSoundButton = null;
+        [UI] private Button removeSoundButton = null;
+        [UI] private ImageMenuItem aboutButton = null;
+        [UI] private ImageMenuItem openFileButton = null;
+        [UI] private ImageMenuItem newFileButton = null;
+        [UI] private ImageMenuItem saveFileButton = null;
+        [UI] private ImageMenuItem saveFileAsButton = null;
+        [UI] private ImageMenuItem quitButton = null;
+        [UI] private Label mainViewLabel = null;
+        [UI] private CheckButton playbackEnabledCheck = null;
 
         public MainWindow() : this(new Builder("MainWindow.glade"))
         {
@@ -40,46 +50,87 @@ namespace KarrotSoundProduction
             DeleteEvent += Window_DeleteEvent;
             _button1.Clicked += Button1_Clicked;
             _button2.Clicked += Button2_Clicked;
-            _aboutButton.Activated += ShowAbout;
-            _openButton.Activated += ShowOpen;
+            aboutButton.Activated += ShowAbout;
+            openFileButton.Activated += ShowOpen;
             addSoundButton.Clicked += AddSoundClicked;
+            editSoundButton.Clicked += EditSoundClicked;
+            removeSoundButton.Clicked += RemoveSoundClicked;
+            this.Shown += OnShow;
+            saveFileAsButton.Activated += ShowSaveFileAs;
+            saveFileButton.Activated += SaveFileClicked;
+            quitButton.Activated += QuitButtonClicked;
         }
 
-        private async void Window_DeleteEvent(object sender, DeleteEventArgs a)
+        private void OnShow(object sender, EventArgs e)
         {
-            await KillAllSounds();
-            Application.Quit();
+
+        }
+
+        private async void Window_DeleteEvent(object sender, DeleteEventArgs e)
+        {
+            await QuitApplication();
+            this.Show();
+        }
+
+        private async void QuitButtonClicked(object sender, EventArgs e)
+        {
+            await QuitApplication();
+        }
+
+        public async Task QuitApplication()
+        {
+            await SoundboardConfiguration.CurrentConfig.KillAllSounds();
+            if (SoundboardConfiguration.CurrentConfig.ChangedSinceLastSave)
+            {
+                ExitConfirmationDialog dialog = new();
+                dialog.Show();
+            }
+            else
+            {
+                Gtk.Application.Quit();
+            }
         }
 
         private async void Button1_Clicked(object sender, EventArgs a)
         {
+            var wd = new WarningDialog("A");
+            Console.WriteLine(await wd.GetResponse());
             Player player = new Player();
-            var task = player.Play("/home/mrcarrot/Music/Kaguya/S3 Insert- My Nonfiction/01.My Nonfiction.wav");
             player.PlaybackFinished += PlayerFinished;
             SoundboardConfiguration.CurrentConfig.CurrentlyPlaying.Add(player);
-            await task;
+            await Task.Run(async () => { await player.Play("/home/mrcarrot/Music/Kaguya/S3 Insert- My Nonfiction/01.My Nonfiction.wav"); });
         }
         private async void Button2_Clicked(object sender, EventArgs a)
         {
-            await KillAllSounds();
+            await SoundboardConfiguration.CurrentConfig.KillAllSounds();
         }
 
         private void AddSoundClicked(object sender, EventArgs e)
         {
-            Label hotkeyLabel = new("F");
-            hotkeyLabel.Name = "hotkeylabeltest";
-            Label playingLabel = new("No");
-            Label fileNameLabel = new("test.wav");
-            mainGrid.Add(hotkeyLabel);
-            mainGrid.Add(playingLabel);
-            mainGrid.Add(fileNameLabel);
             AddSoundDialog dialog = new();
             dialog.Show();
-            mainGrid.InsertRow(0);
+        }
+
+        private void EditSoundClicked(object sender, EventArgs e)
+        {
+            EditSoundDialog dialog = new();
+            dialog.Show();
+        }
+
+        private void RemoveSoundClicked(object sender, EventArgs e)
+        {
+            RemoveSoundDialog dialog = new();
+            dialog.Show();
+        }
+
+        public void UpdateMainText()
+        {
+            mainViewLabel.Text = SoundboardConfiguration.CurrentConfig.ToString();
         }
 
         private async void Key_Released(object sender, KeyReleaseEventArgs e)
         {
+            if (!playbackEnabledCheck.Active) return;
             Console.WriteLine($"Received {e.Event.Key}");
             if (SoundboardConfiguration.CurrentConfig.Keybindings.ContainsKey(e.Event.Key))
             {
@@ -94,16 +145,7 @@ namespace KarrotSoundProduction
 
         private async void KillSoundsKey(object sender, KeyTriggerEventArgs e)
         {
-            await KillAllSounds();
-        }
-
-        private async Task KillAllSounds()
-        {
-            foreach (Player player in SoundboardConfiguration.CurrentConfig.CurrentlyPlaying.ToArray())
-            {
-                await player.Stop();
-            }
-            SoundboardConfiguration.CurrentConfig.CurrentlyPlaying.RemoveAll(x => true);
+            await SoundboardConfiguration.CurrentConfig.KillAllSounds();
         }
 
         private void ShowAbout(object sender, EventArgs e)
@@ -113,11 +155,101 @@ namespace KarrotSoundProduction
             aboutDialog.Show();
         }
 
-        private void ShowOpen(object sender, EventArgs e)
+        private async void ShowOpen(object sender, EventArgs e)
         {
             FileChooserDialog fileChooser = new("Select File", this, FileChooserAction.Open, "_Cancel", ResponseType.Cancel, "_Open", ResponseType.Accept);
-            int response = fileChooser.Run();
-            Console.WriteLine(response);
+            FileFilter filter = new FileFilter();
+            filter.Name = "KON Soundboard Files";
+            filter.AddPattern("*.ksp");
+            fileChooser.Filter = filter;
+            int response = 32768;
+            string path = "";
+            do
+            {
+                response = fileChooser.Run();
+                if (response == -6 || response == -4) //Cancel or close
+                {
+                    fileChooser.Destroy();
+                    return;
+                }
+                if (fileChooser.File != null && (response == -3 || response == 0)) //Open or Accept
+                {
+                    Console.WriteLine(fileChooser.File.Path);
+                    path = fileChooser.File.Path;
+                    fileChooser.Destroy();
+                }
+            } while (response != 0 && response != -3);
+            var loadedConfig = await SoundboardConfiguration.Load(path);
+            if (loadedConfig != null)
+            {
+                SoundboardConfiguration.CurrentConfig = loadedConfig;
+                UpdateMainText();
+            }
+        }
+
+        public async Task<bool> SaveFile()
+        {
+            if (SoundboardConfiguration.CurrentConfig.FilePath != null)
+            {
+                SoundboardConfiguration.CurrentConfig.Save();
+                return true;
+            }
+            else
+            {
+                return await SaveFileAs();
+            }
+        }
+
+        public async Task<bool> SaveFileAs()
+        {
+            FileChooserDialog fileChooser = new("Select Save Location", this, FileChooserAction.Save, "_Cancel", ResponseType.Cancel, "_Save", ResponseType.Accept);
+            FileFilter filter = new FileFilter();
+            filter.Name = "KON Soundboard Files";
+            filter.AddPattern("*.ksp");
+            fileChooser.Filter = filter;
+            fileChooser.SetFilename("soundboard.ksp");
+            fileChooser.SelectFilename("soundboard.ksp");
+            int response = 32768;
+            string path = "";
+            do
+            {
+                response = fileChooser.Run();
+                Console.WriteLine(response);
+                if (response == -6 || response == -4) //Cancel or close
+                {
+                    fileChooser.Destroy();
+                    return false;
+                }
+                if (fileChooser.File != null && (response == -3 || response == -1)) //Open or Accept
+                {
+                    Console.WriteLine(fileChooser.File.Path);
+                    path = fileChooser.File.Path;
+                    fileChooser.Destroy();
+                }
+            } while (response != -1 && response != -3);
+            if (!path.EndsWith(".ksp"))
+            {
+                path += ".ksp";
+            }
+            Console.WriteLine(path);
+            if (File.Exists(path))
+            {
+                WarningDialog dialog = new("This file already exists. Would you like to continue?", "Overwrite");
+                var wResponse = await dialog.GetResponse();
+                if (wResponse == DialogResponse.Cancel) return false;
+            }
+            SoundboardConfiguration.CurrentConfig.Save(path);
+            return true;
+        }
+
+        private async void SaveFileClicked(object sender, EventArgs e)
+        {
+            await SaveFile();
+        }
+
+        private async void ShowSaveFileAs(object sender, EventArgs e)
+        {
+            await SaveFileAs();
         }
     }
 }

@@ -22,17 +22,17 @@ internal class LinuxPlayerNative : IPlayer
 
     public int CurrentVolume { get; set; }
 
-    public bool Playing { get; }
+    public bool Playing { get; private set; }
     public bool Paused { get; }
 
     public LinuxPlayer.PlayerBackend Backend { get { return LinuxPlayer.PlayerBackend.NativePipewire; } }
 
     private static class Interop
     {
-        [DllImport("pw_interface.so")]
+        [DllImport("KarrotSoundProduction.pw_interface.so")]
         public static unsafe extern void startPlayer(pw_player_info* info, int argc, byte** argv);
 
-        [DllImport("pw_interface.so")]
+        [DllImport("KarrotSoundProduction.pw_interface.so")]
         public static unsafe extern void stopPlayer(void* userdata, int signal);
 
         //Import C strlen for string operations
@@ -107,22 +107,6 @@ internal class LinuxPlayerNative : IPlayer
 
     public Task Play(string fileName)
     {
-        if (Path.GetExtension(fileName).ToLower() == ".flac")
-        {
-            if (!Directory.Exists("temp"))
-            {
-                Directory.CreateDirectory("temp");
-            }
-            Console.WriteLine($"Decoding {fileName}");
-            Stopwatch stopwatch = new();
-            stopwatch.Start();
-            string wavFileName = $"temp/{Path.GetFileName(Path.ChangeExtension(fileName, ".wav"))}";
-            if (!File.Exists(wavFileName))
-                Process.Start($"flac", $"-fd \"{fileName}\" -o \"{wavFileName}\"").WaitForExit();
-            stopwatch.Stop();
-            Console.WriteLine($"Decode elapsed time: {stopwatch.ElapsedMilliseconds} ms");
-            fileName = wavFileName;
-        }
         Console.WriteLine($"Playing {fileName} with Native Pipewire backend");
         string[] args = Environment.GetCommandLineArgs();
         int argc = args.Length;
@@ -143,6 +127,7 @@ internal class LinuxPlayerNative : IPlayer
                 Console.WriteLine("Starting native player");
                 try
                 {
+                    Playing = true;
                     Interop.startPlayer(player_info, argc, argv);
                 }
                 catch (Exception e) { Console.WriteLine(e.ToString()); }
@@ -150,6 +135,7 @@ internal class LinuxPlayerNative : IPlayer
         }
 
         PlaybackFinished.Invoke(this, new EventArgs());
+        Playing = false;
 
         return Task.CompletedTask;
     }
@@ -176,11 +162,16 @@ internal class LinuxPlayerNative : IPlayer
 
     public Task Stop()
     {
+        if (!Playing) return Task.CompletedTask;
         unsafe
         {
-            Interop.stopPlayer(playerInfo.data, 0);
+            fixed (pw_player_info* player_info = &playerInfo)
+            {
+                Interop.stopPlayer(player_info, 0);
+            }
         }
-
+        Playing = false;
+        PlaybackFinished.Invoke(this, new());
         return Task.CompletedTask;
     }
 
@@ -222,17 +213,10 @@ unsafe struct pw_player_info
     public float volume;
     public byte* fileName;
     public bool playing;
-    AudioFormat format;
+    KarrotSoundProduction.Utils.AudioFormat format;
     public int fadeInMilliseconds;
     public int fadeOutMilliseconds;
     public void* data;
-
-    enum AudioFormat
-    {
-        Wave,
-        MP3,
-        Flac
-    }
 }
 
 unsafe struct waveFile

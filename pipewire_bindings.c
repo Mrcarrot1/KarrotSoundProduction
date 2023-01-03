@@ -60,8 +60,6 @@ Audio source using \ref pw_stream "pw_stream".
 
 #include <pipewire/pipewire.h>
 
-static float volume = 0.7;
-
 //#define AUDIO_FILE "/home/mrcarrot/Music/Star Wars_The Ultimate Soundtrack Collection__John Williams 10 CD+1 DVD/CD 1 Episode I The Phantom Menace/score/01. John Williams - Star Wars Main Title and The Arrival at Naboo.wav"
 //#define AUDIO_FILE "/home/mrcarrot/Music/Misc/01 - Never Gonna Give You Up.wav"
 //#define AUDIO_FILE "/home/mrcarrot/Music/dpods/01 - September.wav"
@@ -123,9 +121,8 @@ struct waveFile ReadWave(const char *filePath)
     struct waveFile output;
     read += fread(output.chunkId, 1, 4, file);
     output.chunkId[4] = '\0';
-    if (strcmp(output.chunkId, "fLaC") == 0)
-    {
-        //Toto, I don't think we're in Redmond anymore
+    /*if (strcmp(output.chunkId, "fLaC") == 0) //Toto, I don't think we're in Redmond anymore
+    {   
         int8_t metadataBlockHeader;
         read += fread(&metadataBlockHeader, 1, 1, file);
         bool lastMetadataBlock = metadataBlockHeader & 0x70000000;
@@ -133,7 +130,7 @@ struct waveFile ReadWave(const char *filePath)
         int24 blockDataSize;
         read += fread(&blockDataSize, 3, 1, file);
         fputs("FLAC decoder support is not implemented!", stderr);
-    }
+    }*/
     read += fread(&output.chunkSize, 4, 1, file);
     read += fread(output.format, 1, 4, file);
     output.format[4] = '\0';
@@ -357,7 +354,14 @@ static struct pw_stream_events stream_events = {
     .process = on_process16,
 };
 
-void stopPlayer(void *userdata, int signal)
+void stopPlayer(pw_player_info *info)
+{
+    puts("Stopping player");
+    struct data *data = info->data;
+    pw_main_loop_quit(data->loop);
+}
+
+void internalStopPlayer(void *userdata, int signal)
 {
     puts("Stopping player");
     struct data *data = userdata;
@@ -384,11 +388,10 @@ void startPlayer(pw_player_info *info, int argc, char **argv)
     info->data = &waveData;
     waveData.sampleIndex = 0;
     waveData.file = file;
-    struct pw_properties *waveProps;
     waveData.loop = pw_main_loop_new(NULL);
     waveData.playerInfo = info;
-    pw_loop_add_signal(pw_main_loop_get_loop(waveData.loop), SIGINT, stopPlayer, &waveData);
-    pw_loop_add_signal(pw_main_loop_get_loop(waveData.loop), SIGTERM, stopPlayer, &waveData);
+    pw_loop_add_signal(pw_main_loop_get_loop(waveData.loop), SIGINT, internalStopPlayer, &waveData);
+    pw_loop_add_signal(pw_main_loop_get_loop(waveData.loop), SIGTERM, internalStopPlayer, &waveData);
 
     enum spa_audio_format format = SPA_AUDIO_FORMAT_UNKNOWN;
 
@@ -448,6 +451,7 @@ void startPlayer(pw_player_info *info, int argc, char **argv)
     clock_t end = clock();
     double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
     printf("File load time: %.15gms\n", elapsed * 1000);
+    printf("Data pointer: %p\n", info->data);
 
     /* Now connect this stream. We ask that our process function is
      * called in a realtime thread. */

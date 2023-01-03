@@ -13,25 +13,23 @@ namespace KarrotSoundProduction
 {
     class Program
     {
+        public static MainWindow MainWindow { get; private set; }
+
         [STAThread]
         public static void Main(string[] args)
         {
-            Console.WriteLine();
             Application.Init();
 
             var app = new Application("com.calebmharper.ksp", GLib.ApplicationFlags.None);
             app.Register(GLib.Cancellable.Current);
 
-            var win = new MainWindow();
-            win.Title = "KarrotSoundProduction";
-            app.AddWindow(win);
-
-            SoundboardConfiguration.CurrentConfig.Keybindings.Add(Gdk.Key.a, new Keybinding(Gdk.Key.A));
-            SoundboardConfiguration.CurrentConfig.Keybindings[Gdk.Key.a].KeyTriggered += DoThing;
+            MainWindow = new MainWindow();
+            MainWindow.Title = "KarrotSoundProduction";
+            app.AddWindow(MainWindow);
 
             Console.WriteLine($"Player backend: {new NetCoreAudio.Player().GetPlayerBackend()}");
 
-            win.Show();
+            MainWindow.Show();
             Application.Run();
             NetCoreAudio.Utils.FileUtil.ClearTempFiles();
             SoundboardConfiguration.CurrentConfig.CurrentlyPlaying.ForEach(async x => await x.Stop());
