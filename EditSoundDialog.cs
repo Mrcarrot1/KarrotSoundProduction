@@ -43,6 +43,8 @@ namespace KarrotSoundProduction
                 editSoundSelector.Append($"sound {sound.FilePath}", sound.ToString(false));
             }
             editSoundSelector.Changed += SelectionChanged;
+            editFadeInTimeEntry.Sensitive = false; //Fade in/out time aren't supported in 0.1.x
+            editFadeOutTimeEntry.Sensitive = false;
         }
 
         private EditSoundDialog(Builder builder) : base(builder.GetRawOwnedObject("EditSoundDialog"))

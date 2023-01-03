@@ -123,7 +123,7 @@ namespace KarrotSoundProduction
                 }
                 if (formatVersion == 0 && Utils.KSPFormatVersion != 0)
                 {
-                    WarningDialog dialog = new("This file was created using a development version of Karrot Sound Production and may not load correctly. Would you like to continue>", "Continue Anyway");
+                    WarningDialog dialog = new("This file was created using a development version of Karrot Sound Production and may not load correctly. Would you like to continue?", "Continue Anyway");
                     if (await dialog.GetResponse() == DialogResponse.Cancel)
                     {
                         return null;
@@ -191,6 +191,7 @@ namespace KarrotSoundProduction
                 }
             }
 
+            output.ChangedSinceLastSave = false;
             return output;
         }
 

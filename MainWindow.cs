@@ -92,15 +92,11 @@ namespace KarrotSoundProduction
             }
         }
 
-        private async void Button1_Clicked(object sender, EventArgs a)
+        private void Button1_Clicked(object sender, EventArgs a)
         {
-            var wd = new WarningDialog("A");
-            Console.WriteLine(await wd.GetResponse());
-            Player player = new Player();
-            player.PlaybackFinished += PlayerFinished;
-            SoundboardConfiguration.CurrentConfig.CurrentlyPlaying.Add(player);
-            await Task.Run(async () => { await player.Play("/home/mrcarrot/Music/Kaguya/S3 Insert- My Nonfiction/01.My Nonfiction.wav"); });
+            new PlaySoundDialog().Show();
         }
+
         private async void Button2_Clicked(object sender, EventArgs a)
         {
             await SoundboardConfiguration.CurrentConfig.KillAllSounds();

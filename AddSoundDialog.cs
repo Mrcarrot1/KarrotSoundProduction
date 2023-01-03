@@ -36,6 +36,8 @@ namespace KarrotSoundProduction
             hotkeyRecordButton.Clicked += RecordHotkey;
             this.KeyReleaseEvent += KeyReleased;
             soundFileChooser.SelectionChanged += SelectionChanged;
+            fadeInTimeEntry.Sensitive = false; //Fade in/out time aren't supported in 0.1.x
+            fadeOutTimeEntry.Sensitive = false;
         }
 
         private AddSoundDialog(Builder builder) : base(builder.GetRawOwnedObject("AddSoundDialog"))
@@ -65,7 +67,7 @@ namespace KarrotSoundProduction
 
         private void RecordHotkey(object sender, EventArgs e)
         {
-            hotkeyLabel.Text = "Recording";
+            hotkeyLabel.Text = "Press a Key";
             recordingKey = true;
         }
 
