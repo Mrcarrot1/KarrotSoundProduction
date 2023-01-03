@@ -29,10 +29,10 @@ internal class LinuxPlayerNative : IPlayer
 
     private static class Interop
     {
-        [DllImport("KarrotSoundProduction.pw_interface.so")]
+        [DllImport("pw_interface")]
         public static unsafe extern void startPlayer(pw_player_info* info, int argc, byte** argv);
 
-        [DllImport("KarrotSoundProduction.pw_interface.so")]
+        [DllImport("pw_interface")]
         public static unsafe extern void stopPlayer(void* userdata, int signal);
 
         //Import C strlen for string operations

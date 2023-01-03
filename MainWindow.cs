@@ -68,8 +68,8 @@ namespace KarrotSoundProduction
 
         private async void Window_DeleteEvent(object sender, DeleteEventArgs e)
         {
+            e.RetVal = true;
             await QuitApplication();
-            this.Show();
         }
 
         private async void QuitButtonClicked(object sender, EventArgs e)
@@ -77,17 +77,18 @@ namespace KarrotSoundProduction
             await QuitApplication();
         }
 
-        public async Task QuitApplication()
+        public async Task<bool> QuitApplication()
         {
             await SoundboardConfiguration.CurrentConfig.KillAllSounds();
             if (SoundboardConfiguration.CurrentConfig.ChangedSinceLastSave)
             {
                 ExitConfirmationDialog dialog = new();
-                dialog.Show();
+                return await dialog.GetResponse();
             }
             else
             {
                 Gtk.Application.Quit();
+                return true;
             }
         }
 
