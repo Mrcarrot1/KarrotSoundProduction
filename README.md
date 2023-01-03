@@ -18,7 +18,7 @@ KSP is not currently available in binary form. If you would like to run the very
 4. `dotnet restore`
 5. Run either `make` or an individual `dotnet publish` command. Note that if you do not use make, you may need to [specify a runtime](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-publish#options).
    * To build in release configuration rather than the default of debug, run `make release` or add `-c Release` to the `dotnet publish` command.
-5a. Linux: If you do not have clang installed, modify the Makefile and replace `clang` with `gcc`.
+   * Linux: If you do not have clang installed, modify the Makefile and replace `clang` with `gcc`.
 6. Navigate to `bin/Debug/net7.0/<runtime>/KarrotSoundProduction/publish` and run the executable found there.
 
 
