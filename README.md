@@ -1,26 +1,25 @@
 # KarrotSoundProduction
 KarrotSoundProduction is a free and open source soundboard intended for use in theater productions.
-It (will have) support for playing multiple sounds at once as well as indefinitely long sound files.
-Supported media types (will) include FLAC, WAV, MP3, AAC, and WMA.
-
-This software was designed as a replacement for the now-defunct EXP Soundboard.
-As such, it has full backwards compatibility with EXP's configuration files, without the reliance on outdated software.
+KSP supports WAV, MP3, and FLAC audio.
 
 # Build Instructions
 KSP is not currently available in binary form. If you would like to run the very early test versions currently available, follow these instructions.
 
 1. Ensure that you have the following installed:
-   * .NET SDK >= 6.0
+   * .NET SDK >= 7.0
    * GTK >= 3.24(may be installed automatically on restore)
    * (Optional) GNU or similar Make utility
    * (Linux) PulseAudio OR Pipewire(set up to play audio) OR ALSA, mpg123
    * (Linux/Mac OSX) FLAC decoder available on path as `flac`
+   * (Linux) FFMPEG available on path as `ffmpeg`
+   * (Linux) C compiler(gcc or clang)
 2. Clone the repository locally.
 3. Navigate into the repository's root directory.
 4. `dotnet restore`
 5. Run either `make` or an individual `dotnet publish` command. Note that if you do not use make, you may need to [specify a runtime](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-publish#options).
    * To build in release configuration rather than the default of debug, run `make release` or add `-c Release` to the `dotnet publish` command.
-6. Navigate to `bin/Debug/net6.0/<runtime>/KarrotSoundProduction/publish` and run the executable found there.
+5a. Linux: If you do not have clang installed, modify the Makefile and replace `clang` with `gcc`.
+6. Navigate to `bin/Debug/net7.0/<runtime>/KarrotSoundProduction/publish` and run the executable found there.
 
 
 # License
