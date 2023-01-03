@@ -1,8 +1,5 @@
 [Bb]in/
 [Oo]bj/
 .vscode/
-
-
-# Added by cargo
-
-*/target
+*.so
+*.ksp
