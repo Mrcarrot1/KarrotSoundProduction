@@ -42,8 +42,6 @@ namespace KarrotSoundProduction
         private MainWindow(Builder builder) : base(builder.GetRawOwnedObject("MainWindow"))
         {
             SoundboardConfiguration.CurrentConfig = new SoundboardConfiguration();
-            SoundboardConfiguration.CurrentConfig.Keybindings.Add(Gdk.Key.Tab, new Keybinding(Gdk.Key.Tab));
-            SoundboardConfiguration.CurrentConfig.Keybindings[Gdk.Key.Tab].KeyTriggered += KillSoundsKey;
 
             builder.Autoconnect(this);
 
@@ -150,11 +148,6 @@ namespace KarrotSoundProduction
         private void PlayerFinished(object sender, EventArgs e)
         {
             SoundboardConfiguration.CurrentConfig.CurrentlyPlaying.Remove((Player)sender);
-        }
-
-        private async void KillSoundsKey(object sender, KeyTriggerEventArgs e)
-        {
-            await SoundboardConfiguration.CurrentConfig.KillAllSounds();
         }
 
         private void ShowAbout(object sender, EventArgs e)
