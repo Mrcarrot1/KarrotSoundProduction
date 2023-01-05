@@ -59,6 +59,7 @@ namespace KarrotSoundProduction
             saveFileAsButton.Activated += ShowSaveFileAs;
             saveFileButton.Activated += SaveFileClicked;
             quitButton.Activated += QuitButtonClicked;
+            newFileButton.Activated += NewButtonClicked;
         }
 
         private void OnShow(object sender, EventArgs e)
@@ -75,6 +76,17 @@ namespace KarrotSoundProduction
         private async void QuitButtonClicked(object sender, EventArgs e)
         {
             await QuitApplication();
+        }
+
+        private void NewButtonClicked(object sender, EventArgs e)
+        {
+            if (SoundboardConfiguration.CurrentConfig.ChangedSinceLastSave)
+            {
+                ErrorDialog error = new("You have unsaved changes. Please save these changes to continue.");
+                return;
+            }
+            SoundboardConfiguration.CurrentConfig = new();
+            UpdateMainText();
         }
 
         public async Task<bool> QuitApplication()

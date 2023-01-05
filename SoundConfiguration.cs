@@ -150,6 +150,7 @@ namespace KarrotSoundProduction
         public SoundConfiguration(string filePath, Gdk.Key key, Gdk.Key? stopKey = null, string originalFilePath = null, int fadeInTime = 0, int fadeOutTime = 0, float maxVolume = 100, float minVolume = 0)
         {
             FilePath = filePath;
+            if (originalFilePath == null) originalFilePath = filePath;
             OriginalFilePath = originalFilePath;
 
             Key = key;

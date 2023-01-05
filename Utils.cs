@@ -90,7 +90,6 @@ public static class Utils
         if (input == null) return "";
         if (startIndex < 0 || length <= 0) return "";
         if (startIndex >= input.Length) return "";
-        if (length < 0) return "";
         else if (startIndex + length > input.Length) return input.Substring(startIndex, input.Length - startIndex);
         else return input.Substring(startIndex, length);
     }

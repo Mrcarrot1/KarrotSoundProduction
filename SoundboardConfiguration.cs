@@ -30,6 +30,12 @@ namespace KarrotSoundProduction
 
         public List<Player> CurrentlyPlaying = new List<Player>();
 
+        public SoundboardConfiguration()
+        {
+            Keybindings.Add(Gdk.Key.Tab, new(Gdk.Key.Tab));
+            Keybindings[Gdk.Key.Tab].KeyTriggered += KillAllSounds;
+        }
+
         public void AddSound(SoundConfiguration sound)
         {
             Sounds.Add(sound);
@@ -95,8 +101,6 @@ namespace KarrotSoundProduction
         {
             SoundboardConfiguration output = new();
             output.FilePath = filePath;
-            output.Keybindings.Add(Gdk.Key.Tab, new(Gdk.Key.Tab));
-            output.Keybindings[Gdk.Key.Tab].KeyTriggered += output.KillAllSounds;
 
             if (!KONParser.Default.TryParse(File.ReadAllText(filePath), out KONNode node))
             {
@@ -145,7 +149,15 @@ namespace KarrotSoundProduction
                 {
                     string soundPath = null;
                     if (childNode.Values.ContainsKey("filePath"))
+                    {
+                        if (childNode.Values["filePath"] == null)
+                        {
+                            ErrorDialog error = new($"Failed to load sound- file path not found.");
+                            error.Show();
+                            continue;
+                        }
                         soundPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(filePath), (string)childNode.Values["filePath"]));
+                    }
                     else if (childNode.Values.ContainsKey("originalFilePath"))
                         soundPath = (string)childNode.Values["originalFilePath"];
                     else
