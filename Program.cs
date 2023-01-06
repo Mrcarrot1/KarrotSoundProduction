@@ -6,6 +6,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.IO;
 using Gtk;
 using Gdk;
 
@@ -16,7 +17,7 @@ namespace KarrotSoundProduction
         public static MainWindow MainWindow { get; private set; }
 
         [STAThread]
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             Application.Init();
 
@@ -30,6 +31,15 @@ namespace KarrotSoundProduction
             Console.WriteLine($"Player backend: {new NetCoreAudio.Player().GetPlayerBackend()}");
 
             MainWindow.Show();
+            if (args.Length >= 1 && File.Exists(args[0]))
+            {
+                var config = await SoundboardConfiguration.Load(args[0]);
+                if (config != null)
+                {
+                    SoundboardConfiguration.CurrentConfig = config;
+                    MainWindow.UpdateMainText();
+                }
+            }
             Application.Run();
             NetCoreAudio.Utils.FileUtil.ClearTempFiles();
             SoundboardConfiguration.CurrentConfig.CurrentlyPlaying.ForEach(async x => await x.Stop());

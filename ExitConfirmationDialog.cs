@@ -18,6 +18,18 @@ namespace KarrotSoundProduction
         [UI] private Button exitCancelButton = null;
         [UI] private Button exitConfirmButton = null;
         [UI] private Button saveAndExitButton = null;
+        [UI] private Label exitWarningText = null;
+
+        public ExitConfirmationDialog(string text, string exitAction) : this(text)
+        {
+            exitConfirmButton.Label = $"{exitAction} Without Saving";
+            saveAndExitButton.Label = $"Save And {exitAction}";
+        }
+
+        public ExitConfirmationDialog(string text) : this()
+        {
+            exitWarningText.Text = text;
+        }
 
         public ExitConfirmationDialog() : this(new Builder("MainWindow.glade")) 
         { 
@@ -46,7 +58,6 @@ namespace KarrotSoundProduction
         {
             if (await Program.MainWindow.SaveFile())
             {
-                Application.Quit();
                 response = true;
             }
             else
@@ -54,13 +65,14 @@ namespace KarrotSoundProduction
                 response = false;
             }
             _responseGiven.Set();
+            this.Destroy();
         }
 
         private void Confirm(object sender, EventArgs e)
         {
-            Application.Quit();
             response = true;
             _responseGiven.Set();
+            this.Destroy();
         }
 
         public async Task<bool> GetResponse()

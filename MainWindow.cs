@@ -53,16 +53,10 @@ namespace KarrotSoundProduction
             addSoundButton.Clicked += AddSoundClicked;
             editSoundButton.Clicked += EditSoundClicked;
             removeSoundButton.Clicked += RemoveSoundClicked;
-            this.Shown += OnShow;
             saveFileAsButton.Activated += ShowSaveFileAs;
             saveFileButton.Activated += SaveFileClicked;
             quitButton.Activated += QuitButtonClicked;
             newFileButton.Activated += NewButtonClicked;
-        }
-
-        private void OnShow(object sender, EventArgs e)
-        {
-
         }
 
         private async void Window_DeleteEvent(object sender, DeleteEventArgs e)
@@ -76,15 +70,17 @@ namespace KarrotSoundProduction
             await QuitApplication();
         }
 
-        private void NewButtonClicked(object sender, EventArgs e)
+        private async void NewButtonClicked(object sender, EventArgs e)
         {
             if (SoundboardConfiguration.CurrentConfig.ChangedSinceLastSave)
             {
-                ErrorDialog error = new("You have unsaved changes. Please save these changes to continue.");
-                return;
+                ExitConfirmationDialog dialog = new("You have unsaved changes. Would you like to continue?", "Continue");
+                if (await dialog.GetResponse())
+                {
+                    SoundboardConfiguration.CurrentConfig = new();
+                    UpdateMainText();
+                }
             }
-            SoundboardConfiguration.CurrentConfig = new();
-            UpdateMainText();
         }
 
         public async Task<bool> QuitApplication()
@@ -93,7 +89,15 @@ namespace KarrotSoundProduction
             if (SoundboardConfiguration.CurrentConfig.ChangedSinceLastSave)
             {
                 ExitConfirmationDialog dialog = new();
-                return await dialog.GetResponse();
+                if (await dialog.GetResponse())
+                {
+                    Gtk.Application.Quit();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
             else
             {

@@ -451,7 +451,6 @@ void startPlayer(pw_player_info *info, int argc, char **argv)
     clock_t end = clock();
     double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
     printf("File load time: %.15gms\n", elapsed * 1000);
-    printf("Data pointer: %p\n", info->data);
 
     /* Now connect this stream. We ask that our process function is
      * called in a realtime thread. */
