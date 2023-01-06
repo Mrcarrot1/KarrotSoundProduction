@@ -9,6 +9,7 @@
     <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
     <PublishReadyToRun>true</PublishReadyToRun>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PublishTrimmed>true</PublishTrimmed>
     <!--PublishAot>true</PublishAot-->
   </PropertyGroup>
 
