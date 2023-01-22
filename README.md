@@ -3,7 +3,7 @@ KarrotSoundProduction is a free and open source soundboard intended for use in t
 KSP supports WAV, MP3, and FLAC audio.
 
 # Build Instructions
-KSP is not currently available in binary form. If you would like to run the very early test versions currently available, follow these instructions.
+KSP is currently available for Linux on x86_64. To build for another platform, follow these instructions.
 
 1. Ensure that you have the following installed:
    * .NET SDK >= 7.0
