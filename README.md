@@ -9,10 +9,10 @@ KSP is currently available for Linux on x86_64. To build for another platform, f
    * .NET SDK >= 7.0
    * GTK >= 3.24(may be installed automatically on restore)
    * (Optional) GNU or similar Make utility
+   * FLAC decoder available on path as `flac`
+   * FFMPEG available on path as `ffmpeg`
    * (Linux) PulseAudio OR Pipewire(set up to play audio) OR ALSA, mpg123
-   * (Linux/Mac OSX) FLAC decoder available on path as `flac`
-   * (Linux) FFMPEG available on path as `ffmpeg`
-   * (Linux) C compiler(gcc or clang)
+   * (Linux) C compiler(gcc or clang) (if Pipewire is installed)
 2. Clone the repository locally.
 3. Navigate into the repository's root directory.
 4. `dotnet restore`
