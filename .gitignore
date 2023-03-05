@@ -2,4 +2,5 @@
 [Oo]bj/
 .vscode/
 *.so
+*.o
 *.ksp
