@@ -4,3 +4,4 @@
 *.so
 *.o
 *.ksp
+pipewire_bindings/standalone_player
