@@ -35,6 +35,10 @@ namespace KarrotSoundProduction
             Key = key;
         }
     }
+
+    /// <summary>
+    /// Represents a key release event.
+    /// </summary>
     public class KeyTriggerEventArgs : EventArgs
     {
         public Gdk.Key Key;

@@ -11,6 +11,8 @@ namespace NetCoreAudio.Players
             return "afplay";
         }
 
+        public override Task SetVolume(double log2Scale) => SetVolume((int)Math.Pow(2, Math.Log10(log2Scale)));
+
         public override Task SetVolume(int percent)
         {
             if (percent > 100) percent = 100;

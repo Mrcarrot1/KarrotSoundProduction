@@ -16,7 +16,7 @@ using NetCoreAudio.Interfaces;
 
 namespace NetCoreAudio.Players;
 
-internal class LinuxPlayerNative : IPlayer
+internal partial class LinuxPlayerNative : IPlayer
 {
     public event EventHandler PlaybackFinished;
 
@@ -27,17 +27,26 @@ internal class LinuxPlayerNative : IPlayer
 
     public LinuxPlayer.PlayerBackend Backend { get { return LinuxPlayer.PlayerBackend.NativePipewire; } }
 
-    private static class Interop
+    private static partial class Interop
     {
-        [DllImport("pw_interface")]
-        public static unsafe extern void startPlayer(pw_player_info* info, int argc, byte** argv);
+        [LibraryImport("pw_interface.so")]
+        public static unsafe partial void startPlayer(pw_player_info* info, int argc, byte** argv);
 
-        [DllImport("pw_interface")]
-        public static unsafe extern void stopPlayer(void* userdata, int signal);
+        [LibraryImport("pw_interface.so")]
+        public static unsafe partial void stopPlayer(void* userdata, int signal);
+
+        [LibraryImport("pw_interface.so")]
+        public static unsafe partial void setVolume(pw_player_info* info, float volume);
+
+        [LibraryImport("pw_interface.so")]
+        public static unsafe partial float getVolume(pw_player_info* info);
+
+        [LibraryImport("pw_interface.so")]
+        public static unsafe partial void setPaused(pw_player_info* info, [MarshalAs(UnmanagedType.Bool)] bool paused);
 
         //Import C strlen for string operations
-        [DllImport("libc")]
-        unsafe static extern IntPtr strlen(byte* contents);
+        [LibraryImport("libc")]
+        public static unsafe partial IntPtr strlen(byte* contents);
 
         public static unsafe string ConvertFromCStr(byte* cstr)
         {
@@ -85,13 +94,13 @@ internal class LinuxPlayerNative : IPlayer
                     throw new InvalidOperationException(string.Format("{0} does not define a StructLayout attribute", type));
                 }
 
-                IntPtr sourcePtr = new IntPtr(source);
+                IntPtr sourcePtr = new(source);
 
                 for (int i = 0; i < length; i++)
                 {
-                    IntPtr p = new IntPtr((byte*)source + i * sizeInBytes);
+                    IntPtr p = new((byte*)source + i * sizeInBytes);
 
-                    output[i] = (T)System.Runtime.InteropServices.Marshal.PtrToStructure(p, typeof(T))!;
+                    output[i] = (T)Marshal.PtrToStructure(p, typeof(T))!;
                 }
             }
             else
@@ -107,14 +116,23 @@ internal class LinuxPlayerNative : IPlayer
 
     public Task Play(string fileName)
     {
+        return Play(fileName, new KarrotSoundProduction.SoundConfiguration(fileName, Gdk.Key.A));
+    }
+
+    public Task Play(string fileName, KarrotSoundProduction.SoundConfiguration config)
+    {
         Console.WriteLine($"Playing {fileName} with Native Pipewire backend");
         string[] args = Environment.GetCommandLineArgs();
         int argc = args.Length;
+        playerInfo.firstRun = true;
         unsafe
         {
-            playerInfo.volume = CurrentVolume / 100.0f;
+            playerInfo.volume = (float)Math.Pow(10, Math.Log2((double)CurrentVolume / 100));
             playerInfo.fileName = Interop.ConvertToCStr(fileName);
             playerInfo.playing = true;
+            playerInfo.speedFactor = config.PlaybackSpeed;
+            playerInfo.fadeInMilliseconds = config.FadeInTime;
+            playerInfo.fadeOutMilliseconds = config.FadeOutTime;
 
             byte*[] charPtrs = new byte*[argc];
             for (int i = 0; i < argc; i++)
@@ -145,6 +163,8 @@ internal class LinuxPlayerNative : IPlayer
         unsafe
         {
             playerInfo.playing = false;
+            fixed (pw_player_info* player_info = &playerInfo)
+            Interop.setPaused(player_info, true);
         }
 
         return Task.CompletedTask;
@@ -155,6 +175,8 @@ internal class LinuxPlayerNative : IPlayer
         unsafe
         {
             playerInfo.playing = true;
+            fixed (pw_player_info* player_info = &playerInfo)
+            Interop.setPaused(player_info, false);
         }
 
         return Task.CompletedTask;
@@ -180,9 +202,33 @@ internal class LinuxPlayerNative : IPlayer
         CurrentVolume = percent;
         unsafe
         {
-            playerInfo.volume = percent / 100f;
+            fixed (pw_player_info* player_info = &playerInfo)
+            {
+                //Console.WriteLine($"Current volume: {Interop.getVolume(player_info)}");
+                //Convert the percent into 0-1 log scale by doing the following:
+                //1) Cast to double and divide by 100
+                //2) Take the log base 2 of that value
+                //3) Take 10 to that power
+                double value = Math.Pow(10, Math.Log2((double)percent / 100));
+                playerInfo.volume = (float)value;
+                Interop.setVolume(player_info, (float)value);
+            }
         }
 
+        return Task.CompletedTask;
+    }
+
+    public Task SetVolume(double log2Scale)
+    {
+        CurrentVolume = (int)Math.Pow(2, Math.Log10(log2Scale));
+        unsafe
+        {
+            fixed (pw_player_info* player_info = &playerInfo)
+            {
+                playerInfo.volume = (float)log2Scale;
+                Interop.setVolume(player_info, (float)log2Scale);
+            }
+        }
         return Task.CompletedTask;
     }
 
@@ -213,9 +259,11 @@ unsafe struct pw_player_info
     public float volume;
     public byte* fileName;
     public bool playing;
+    public bool firstRun;
     KarrotSoundProduction.Utils.AudioFormat format;
     public int fadeInMilliseconds;
     public int fadeOutMilliseconds;
+    public float speedFactor;
     public void* data;
 }
 

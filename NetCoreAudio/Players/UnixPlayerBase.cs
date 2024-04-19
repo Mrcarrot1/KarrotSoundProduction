@@ -118,6 +118,8 @@ namespace NetCoreAudio.Players
 
         public abstract Task SetVolume(int percent);
 
+        public abstract Task SetVolume(double log2Scale);
+
         private static string EscapeFileName(string fileName)
         {
             return fileName

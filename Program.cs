@@ -7,6 +7,7 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.IO;
+using System.Runtime.InteropServices;
 using Gtk;
 using Gdk;
 
@@ -38,6 +39,19 @@ namespace KarrotSoundProduction
                 {
                     SoundboardConfiguration.CurrentConfig = config;
                     MainWindow.UpdateMainText();
+                }
+            }
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                if (!Utils.CheckForCommand("ffmpeg"))
+                {
+                    ErrorDialog dialog = new("FFMPEG not found. KSP requires FFMPEG to play MP3 audio. Please ensure FFMPEG is installed.");
+                    dialog.Show();
+                }
+                if (!Utils.CheckForCommand("flac"))
+                {
+                    ErrorDialog dialog = new("FLAC decoder not found. KSP will not be able to play FLAC audio.");
+                    dialog.Show();
                 }
             }
             Application.Run();

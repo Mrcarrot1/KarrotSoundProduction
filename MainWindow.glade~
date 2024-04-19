@@ -6,8 +6,8 @@
     <property name="can-focus">False</property>
     <property name="type-hint">dialog</property>
     <property name="program-name">KarrotSoundProduction</property>
-    <property name="version">v0.1.0</property>
-    <property name="copyright" translatable="yes">Ⓒ2022-2023 Caleb Harper</property>
+    <property name="version">v0.2.0</property>
+    <property name="copyright" translatable="yes">Ⓒ2022-2024 Caleb Harper</property>
     <property name="comments" translatable="yes">Free and open-source soundboard</property>
     <property name="website">https://ksp.calebmharper.com</property>
     <property name="authors">Caleb Harper
@@ -225,6 +225,7 @@
                   <object class="GtkEntry" id="editFadeOutTimeEntry">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
+                    <property name="text" translatable="yes">0</property>
                     <property name="placeholder-text" translatable="yes">0</property>
                     <property name="input-purpose">number</property>
                   </object>
@@ -238,6 +239,45 @@
                 <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Speed</property>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="editSpeedEntry">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="text" translatable="yes">1.0</property>
+                    <property name="xalign">0.5</property>
+                    <property name="placeholder-text" translatable="yes">1.0</property>
+                    <property name="input-purpose">number</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">3</property>
               </packing>
             </child>
           </object>
@@ -1365,6 +1405,7 @@
                   <object class="GtkEntry" id="fadeOutTimeEntry">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
+                    <property name="text" translatable="yes">0</property>
                     <property name="placeholder-text" translatable="yes">0</property>
                     <property name="input-purpose">number</property>
                   </object>
@@ -1378,6 +1419,45 @@
                 <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Speed</property>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="speedEntry">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="text" translatable="yes">1.0</property>
+                    <property name="xalign">0.5</property>
+                    <property name="placeholder-text" translatable="yes">1.0</property>
+                    <property name="input-purpose">number</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">3</property>
               </packing>
             </child>
           </object>

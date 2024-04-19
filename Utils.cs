@@ -15,7 +15,7 @@ public static class Utils
 #if DEV_BUILD
     public const int KSPFormatVersion = 0;
 #else
-    public const int KSPFormatVersion = 1;
+    public const int KSPFormatVersion = 2;
 #endif
 
     public static readonly string cacheDir = $"{Environment.GetEnvironmentVariable("HOME")}/.cache/KarrotSoundProduction";

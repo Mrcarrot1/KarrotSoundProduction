@@ -42,6 +42,15 @@ namespace KarrotSoundProduction
         private MainWindow(Builder builder) : base(builder.GetRawOwnedObject("MainWindow"))
         {
             SoundboardConfiguration.CurrentConfig = new SoundboardConfiguration();
+            SoundboardConfiguration.CurrentConfig.Keybindings.Add(Gdk.Key.b, new Keybinding(Gdk.Key.b));
+            SoundboardConfiguration.CurrentConfig.Keybindings[Gdk.Key.b].KeyTriggered +=
+            async (object sender, KeyTriggerEventArgs e) =>
+            {
+                foreach (Player player in SoundboardConfiguration.CurrentConfig.CurrentlyPlaying)
+                {
+                    await player.SetVolume(50);
+                }
+            };
 
             builder.Autoconnect(this);
 
@@ -72,38 +81,46 @@ namespace KarrotSoundProduction
 
         private async void NewButtonClicked(object sender, EventArgs e)
         {
+            bool ok = true;
             if (SoundboardConfiguration.CurrentConfig.ChangedSinceLastSave)
             {
-                ExitConfirmationDialog dialog = new("You have unsaved changes. Would you like to continue?", "Continue");
-                if (await dialog.GetResponse())
-                {
-                    SoundboardConfiguration.CurrentConfig = new();
-                    UpdateMainText();
-                }
+                ExitConfirmationDialog dialog = 
+                    new("You have unsaved changes. Would you like to continue?", "Continue");
+                ok = await dialog.GetResponse();
+            }
+            if (ok)
+            {
+                using var l = await SoundboardConfiguration.CurrentConfigLockProvider.GetLock();
+                SoundboardConfiguration.CurrentConfig = new();
+                UpdateMainText();
             }
         }
 
         public async Task<bool> QuitApplication()
         {
-            await SoundboardConfiguration.CurrentConfig.KillAllSounds();
+            using var l = await SoundboardConfiguration.CurrentConfigLockProvider.GetLock();
+            bool output;
             if (SoundboardConfiguration.CurrentConfig.ChangedSinceLastSave)
             {
                 ExitConfirmationDialog dialog = new();
                 if (await dialog.GetResponse())
                 {
+                    await SoundboardConfiguration.CurrentConfig.KillAllSounds();
                     Gtk.Application.Quit();
-                    return true;
+                    output = true;
                 }
                 else
                 {
-                    return false;
+                    output = false;
                 }
             }
             else
             {
+                await SoundboardConfiguration.CurrentConfig.KillAllSounds();
                 Gtk.Application.Quit();
-                return true;
+                output = true;
             }
+            return output;
         }
 
         private void Button1_Clicked(object sender, EventArgs a)
@@ -113,44 +130,55 @@ namespace KarrotSoundProduction
 
         private async void Button2_Clicked(object sender, EventArgs a)
         {
+            using var l = await SoundboardConfiguration.CurrentConfigLockProvider.GetLock();
             await SoundboardConfiguration.CurrentConfig.KillAllSounds();
         }
 
-        private void AddSoundClicked(object sender, EventArgs e)
+        private async void AddSoundClicked(object sender, EventArgs e)
         {
+            using var l = await SoundboardConfiguration.CurrentConfigLockProvider.GetLock();
             AddSoundDialog dialog = new();
             dialog.Show();
         }
 
-        private void EditSoundClicked(object sender, EventArgs e)
+        private async void EditSoundClicked(object sender, EventArgs e)
         {
+            using var l = await SoundboardConfiguration.CurrentConfigLockProvider.GetLock();
             EditSoundDialog dialog = new();
             dialog.Show();
         }
 
-        private void RemoveSoundClicked(object sender, EventArgs e)
+        private async void RemoveSoundClicked(object sender, EventArgs e)
         {
+            using var l = await SoundboardConfiguration.CurrentConfigLockProvider.GetLock();
             RemoveSoundDialog dialog = new();
             dialog.Show();
         }
 
-        public void UpdateMainText()
+        public async void UpdateMainText()
         {
+            using var l = await SoundboardConfiguration.CurrentConfigLockProvider.GetLock();
             mainViewLabel.Text = SoundboardConfiguration.CurrentConfig.ToString();
         }
 
         private async void Key_Released(object sender, KeyReleaseEventArgs e)
         {
             if (!playbackEnabledCheck.Active) return;
-            Console.WriteLine($"Received {e.Event.Key}");
-            if (SoundboardConfiguration.CurrentConfig.Keybindings.ContainsKey(e.Event.Key))
+            Console.WriteLine($"Received {e.Event.Key} ({e.Event.HardwareKeycode})");
+
+            var l = await SoundboardConfiguration.CurrentConfigLockProvider.GetLock();
+            bool ok = SoundboardConfiguration.CurrentConfig.Keybindings.TryGetValue(e.Event.Key, out Keybinding value);
+            l.Dispose();
+
+            if (ok)
             {
-                await SoundboardConfiguration.CurrentConfig.Keybindings[e.Event.Key].TriggerKey();
+                await value.TriggerKey();
             }
         }
 
-        private void PlayerFinished(object sender, EventArgs e)
+        private async void PlayerFinished(object sender, EventArgs e)
         {
+            using var l = await SoundboardConfiguration.CurrentConfigLockProvider.GetLock();
             SoundboardConfiguration.CurrentConfig.CurrentlyPlaying.Remove((Player)sender);
         }
 
@@ -163,9 +191,19 @@ namespace KarrotSoundProduction
 
         private async void ShowOpen(object sender, EventArgs e)
         {
-            FileChooserDialog fileChooser = new("Select File", this, FileChooserAction.Open, "_Cancel", ResponseType.Cancel, "_Open", ResponseType.Accept);
-            FileFilter filter = new FileFilter();
-            filter.Name = "KON Soundboard Files";
+            using var l = await SoundboardConfiguration.CurrentConfigLockProvider.GetLock();
+            if (SoundboardConfiguration.CurrentConfig.ChangedSinceLastSave)
+            {
+                ExitConfirmationDialog dialog = new("Are you sure you wish to continue? You have unsaved changes.", "Continue");
+                bool confirm = await dialog.GetResponse();
+                if (!confirm) return;
+            }
+            FileChooserDialog fileChooser = 
+                new("Select File", this, FileChooserAction.Open, "_Cancel", ResponseType.Cancel, "_Open", ResponseType.Accept);
+            FileFilter filter = new()
+            {
+                Name = "KON Soundboard Files"
+            };
             filter.AddPattern("*.ksp");
             fileChooser.Filter = filter;
             int response = 32768;
@@ -180,7 +218,6 @@ namespace KarrotSoundProduction
                 }
                 if (fileChooser.File != null && (response == -3 || response == 0)) //Open or Accept
                 {
-                    Console.WriteLine(fileChooser.File.Path);
                     path = fileChooser.File.Path;
                     fileChooser.Destroy();
                 }
@@ -195,6 +232,7 @@ namespace KarrotSoundProduction
 
         public async Task<bool> SaveFile()
         {
+            using var l = await SoundboardConfiguration.CurrentConfigLockProvider.GetLock();
             if (SoundboardConfiguration.CurrentConfig.FilePath != null)
             {
                 SoundboardConfiguration.CurrentConfig.Save();
@@ -202,15 +240,19 @@ namespace KarrotSoundProduction
             }
             else
             {
-                return await SaveFileAs();
+                return await SaveFileAs(false);
             }
         }
 
-        public async Task<bool> SaveFileAs()
+        public async Task<bool> SaveFileAs(bool getLock = true)
         {
+            DisposableLock l = null;
+            if (getLock) l = await SoundboardConfiguration.CurrentConfigLockProvider.GetLock();
             FileChooserDialog fileChooser = new("Select Save Location", this, FileChooserAction.Save, "_Cancel", ResponseType.Cancel, "_Save", ResponseType.Accept);
-            FileFilter filter = new FileFilter();
-            filter.Name = "KON Soundboard Files";
+            FileFilter filter = new()
+            {
+                Name = "KON Soundboard Files"
+            };
             filter.AddPattern("*.ksp");
             fileChooser.Filter = filter;
             fileChooser.SetFilename("soundboard.ksp");
@@ -220,7 +262,6 @@ namespace KarrotSoundProduction
             do
             {
                 response = fileChooser.Run();
-                Console.WriteLine(response);
                 if (response == -6 || response == -4) //Cancel or close
                 {
                     fileChooser.Destroy();
@@ -228,7 +269,6 @@ namespace KarrotSoundProduction
                 }
                 if (fileChooser.File != null && (response == -3 || response == -1)) //Open or Accept
                 {
-                    Console.WriteLine(fileChooser.File.Path);
                     path = fileChooser.File.Path;
                     fileChooser.Destroy();
                 }
@@ -245,6 +285,7 @@ namespace KarrotSoundProduction
                 if (wResponse == DialogResponse.Cancel) return false;
             }
             SoundboardConfiguration.CurrentConfig.Save(path);
+            if (getLock) l.Dispose();
             return true;
         }
 

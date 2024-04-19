@@ -10,14 +10,44 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using KarrotObjectNotation;
 using NetCoreAudio;
+using System.Threading;
 
 namespace KarrotSoundProduction
 {
+    public class DisposableLockProvider
+    {
+        private SemaphoreSlim internalLock;
+        public async Task<DisposableLock> GetLock() => await DisposableLock.Create(internalLock);
+
+        public DisposableLockProvider(SemaphoreSlim internalLock)
+        {
+            this.internalLock = internalLock;
+        }
+    }
+    public class DisposableLock : IDisposable
+    {
+        private SemaphoreSlim internalLock;
+        private DisposableLock(SemaphoreSlim internalLock)
+        {
+            this.internalLock = internalLock;
+        }
+        public static async Task<DisposableLock> Create(SemaphoreSlim internalLock)
+        {
+            await internalLock.WaitAsync();
+            return new(internalLock);
+        }
+        public void Dispose()
+        {
+            internalLock.Release();
+        }
+    }
     /// <summary>
     /// Represents the configuration of a soundboard, including sounds and keybindings.
     /// </summary>
     public class SoundboardConfiguration
     {
+        private static SemaphoreSlim CurrentConfigLock = new(1);
+        public static DisposableLockProvider CurrentConfigLockProvider = new(CurrentConfigLock);
         public static SoundboardConfiguration CurrentConfig { get; internal set; }
 
         public string FilePath = null;
@@ -28,7 +58,7 @@ namespace KarrotSoundProduction
 
         public Dictionary<Gdk.Key, Keybinding> Keybindings = new Dictionary<Gdk.Key, Keybinding>();
 
-        public List<Player> CurrentlyPlaying = new List<Player>();
+        public List<Player> CurrentlyPlaying = new();
 
         public SoundboardConfiguration()
         {
@@ -94,7 +124,7 @@ namespace KarrotSoundProduction
                 output.Append($"{sound}\n");
             }
             string result = output.ToString().SafeSubstring(0, output.Length - 1).Trim();
-            return result == "" ? "No Sounds" : result;
+            return result == "" ? "No Sounds" : result + '\n';
         }
 
         public static async Task<SoundboardConfiguration> Load(string filePath)
@@ -102,7 +132,7 @@ namespace KarrotSoundProduction
             SoundboardConfiguration output = new();
             output.FilePath = filePath;
 
-            if (!KONParser.Default.TryParse(File.ReadAllText(filePath), out KONNode node))
+            if (!KONParser.Default.TryParse(await File.ReadAllTextAsync(filePath), out KONNode node))
             {
                 ErrorDialog error = new("This file could not be read as a KSP soundboard file.");
                 error.Show();
@@ -187,6 +217,10 @@ namespace KarrotSoundProduction
                     int fadeOutTime = 0;
                     if (childNode.Values.ContainsKey("fadeOutTime"))
                         fadeOutTime = (int)childNode.Values["fadeOutTime"];
+
+                    float speed = 1;
+                    if (childNode.Values.ContainsKey("playbackSpeed"))
+                        speed = (float)childNode.Values["playbackSpeed"];
 
                     float maxVolume = 1;
                     float minVolume = 0;

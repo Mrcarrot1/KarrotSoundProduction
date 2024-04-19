@@ -31,8 +31,8 @@ namespace KarrotSoundProduction
             exitWarningText.Text = text;
         }
 
-        public ExitConfirmationDialog() : this(new Builder("MainWindow.glade")) 
-        { 
+        public ExitConfirmationDialog() : this(new Builder("MainWindow.glade"))
+        {
             exitCancelButton.Clicked += Cancel;
             exitConfirmButton.Clicked += Confirm;
             saveAndExitButton.Clicked += SaveAndExit;

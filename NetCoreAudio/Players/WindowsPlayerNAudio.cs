@@ -57,12 +57,9 @@ namespace NetCoreAudio.Players
                 waveProvider = new BufferedWaveProvider(fileReader.WaveFormat);
                 waveProvider.BufferDuration = TimeSpan.FromSeconds(20);
             }
-            if (Path.GetExtension(fileName) == ".flac")
-            {
-                //waveProvider = new 
-            }
 
             waveOut.Init(waveProvider);
+            waveOut.Volume = CurrentVolume / 100f;
 
             _playbackTimer = new Timer
             {
@@ -132,6 +129,8 @@ namespace NetCoreAudio.Players
         {
             waveOut.Dispose();
         }
+
+        public Task SetVolume(double log2Scale) => SetVolume((int)Math.Pow(2, Math.Log10(log2Scale)));
 
         public Task SetVolume(int percent)
         {

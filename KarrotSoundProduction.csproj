@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>0.1.2</Version>
+    <Version>0.2.0</Version>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <PublishSingleFile>true</PublishSingleFile> 
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
@@ -21,11 +21,11 @@
 
   <ItemGroup>
     <PackageReference Include="GtkSharp" Version="3.24.24.*" />
-    <PackageReference Include="KarrotObjectNotation" Version="1.1.5" />
+    <PackageReference Include="KarrotObjectNotation" Version="1.1.6" />
     <PackageReference Include="NAudio.Asio" Version="2.0.0" />
     <PackageReference Include="NAudio.Core" Version="2.0.0" />
     <PackageReference Include="NAudio.WinMM" Version="2.0.1" />
-    <NativeFileReference Include="./pw_interface.so" CopyToPublishDirectory="Always" CopyToOutputDirectory="Always"/>
+    <NativeFileReference Include="./pw_interface.so" CopyToPublishDirectory="Always" CopyToOutputDirectory="Always" />
   </ItemGroup>
 
 </Project>

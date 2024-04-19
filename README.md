@@ -23,7 +23,7 @@ KSP is currently available for Linux on x86_64. To build for another platform, f
 
 
 # License
-KSP as a complete product is licensed under the Mozilla Public License, version 2.0. For more details, see LICENSE in this directory.
+KSP as a complete project is licensed under the Mozilla Public License, version 2.0. For more details, see LICENSE in this directory.
 
 KSP uses a modified version of NetCoreAudio, originally published on GitHub by mobiletechtracker.
 The original project's license is as follows.

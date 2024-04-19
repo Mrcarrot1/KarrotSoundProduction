@@ -73,6 +73,12 @@ namespace KarrotSoundProduction
         public float MinVolume { get; private set; }
 
         /// <summary>
+        /// The factor by which the sound's sample rate will be multiplied. (Default: 1.0)
+        /// </summary>
+        /// <value></value>
+        public float PlaybackSpeed { get; private set; }
+
+        /// <summary>
         /// Gets the KONNode object that represents this sound configuration.
         /// </summary>
         /// <returns></returns>
@@ -87,6 +93,7 @@ namespace KarrotSoundProduction
             output.AddValue("fadeOutTime", FadeOutTime);
             output.AddValue("maxVolume", MaxVolume);
             output.AddValue("minVolume", MinVolume);
+            output.AddValue("PlaybackSpeed", PlaybackSpeed);
 
             return output;
         }
@@ -101,17 +108,20 @@ namespace KarrotSoundProduction
         {
             Player player = new();
             int initialVolume = FadeInTime >= 100 ? 0 : 100;
-            await player.SetVolume(initialVolume);
+            //await player.SetVolume(initialVolume);
             SoundboardConfiguration.CurrentConfig.CurrentlyPlaying.Add(player);
-            await player.Play(FilePath);
-            if (FadeInTime >= 100)
+            await player.Play(FilePath, this);
+            //await Task.Delay(1000);
+            //await player.SetVolume(20);
+            //await playerTask;
+            /*if (FadeInTime >= 100)
             {
                 while (player.CurrentVolume < 100)
                 {
                     await player.SetVolume(player.CurrentVolume + 1);
                     await Task.Delay(FadeInTime / 100);
                 }
-            }
+            }*/
             SoundboardConfiguration.CurrentConfig.CurrentlyPlaying.Remove(player);
         }
 
@@ -147,7 +157,7 @@ namespace KarrotSoundProduction
             SoundboardConfiguration.CurrentConfig.CurrentlyPlaying.Remove(player);
         }
 
-        public SoundConfiguration(string filePath, Gdk.Key key, Gdk.Key? stopKey = null, string originalFilePath = null, int fadeInTime = 0, int fadeOutTime = 0, float maxVolume = 100, float minVolume = 0)
+        public SoundConfiguration(string filePath, Gdk.Key key, Gdk.Key? stopKey = null, string originalFilePath = null, int fadeInTime = 0, int fadeOutTime = 0, float maxVolume = 100, float minVolume = 0, float speed = 1)
         {
             FilePath = filePath;
             if (originalFilePath == null) originalFilePath = filePath;
@@ -161,6 +171,7 @@ namespace KarrotSoundProduction
 
             MaxVolume = maxVolume;
             MinVolume = minVolume;
+            PlaybackSpeed = speed;
 
             player = new();
         }

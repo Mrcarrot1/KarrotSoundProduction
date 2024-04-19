@@ -43,12 +43,12 @@ namespace KarrotSoundProduction
         {
             try
             {
-            //Ignored.Invoke(sender, e);
-            response = DialogResponse.OK;
-            _responseGiven.Set();
-            this.Destroy();
+                //Ignored.Invoke(sender, e);
+                response = DialogResponse.OK;
+                _responseGiven.Set();
+                this.Destroy();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
             }

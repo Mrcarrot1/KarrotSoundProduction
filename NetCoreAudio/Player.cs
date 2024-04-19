@@ -92,6 +92,28 @@ namespace NetCoreAudio
             await _internalPlayer.Play(fileName);
         }
 
+        public async Task Play(string fileName, KarrotSoundProduction.SoundConfiguration config)
+        {
+            if (_internalPlayer is LinuxPlayerNative lpn)
+            {
+                lpn.Play(fileName, config);
+            }
+            else throw new NotImplementedException();
+        }
+
+        public async Task Play(string fileName, int fadeInMilliseconds, int fadeOutMilliseconds)
+        {
+            if (_internalPlayer is not LinuxPlayerNative lpn && fadeInMilliseconds != 0 && fadeOutMilliseconds != 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Error.WriteLine($"Fade in/out time is not supported on the {GetPlayerBackend()} backend");
+                Console.ResetColor();
+                return;
+            }
+
+            
+        }
+
         /// <summary>
         /// Pauses any ongong playback. Sets Paused flag to true. Doesn't modify Playing flag.
         /// </summary>
@@ -134,11 +156,18 @@ namespace NetCoreAudio
             await _internalPlayer.SetVolume(percent);
         }
 
+        public async Task SetVolume(double log2Scale)
+        {
+            int percent = (int)Math.Pow(2, Math.Log10(log2Scale));
+            CurrentVolume = percent;
+            await _internalPlayer.SetVolume(log2Scale);
+        }
+
         public string GetPlayerBackend()
         {
             return _internalPlayer switch
             {
-                LinuxPlayer => $"Linux({(_internalPlayer as LinuxPlayer).Backend})",
+                LinuxPlayer player => $"Linux({player.Backend})",
                 LinuxPlayerNative => "Linux(Native Pipewire)",
                 MacPlayer => $"MacOS",
                 WindowsPlayer => $"Windows(NetCoreAudio)",

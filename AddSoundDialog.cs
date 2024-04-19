@@ -20,6 +20,7 @@ namespace KarrotSoundProduction
         [UI] private Button confirmButton = null;
         [UI] private Entry fadeInTimeEntry = null;
         [UI] private Entry fadeOutTimeEntry = null;
+        [UI] private Entry speedEntry = null;
         [UI] private FileChooserButton soundFileChooser = null;
         [UI] private Label hotkeyLabel = null;
         [UI] private Button hotkeyRecordButton = null;
@@ -34,10 +35,10 @@ namespace KarrotSoundProduction
             confirmButton.Clicked += Confirm;
             confirmButton.Sensitive = false;
             hotkeyRecordButton.Clicked += RecordHotkey;
-            this.KeyReleaseEvent += KeyReleased;
+            KeyReleaseEvent += KeyReleased;
             soundFileChooser.SelectionChanged += SelectionChanged;
-            fadeInTimeEntry.Sensitive = false; //Fade in/out time aren't supported in 0.1.x
-            fadeOutTimeEntry.Sensitive = false;
+            fadeInTimeEntry.Sensitive = true; //Fade in/out time aren't supported in 0.1.x
+            fadeOutTimeEntry.Sensitive = true;
         }
 
         private AddSoundDialog(Builder builder) : base(builder.GetRawOwnedObject("AddSoundDialog"))
@@ -47,7 +48,7 @@ namespace KarrotSoundProduction
 
         private void Cancel(object sender, EventArgs e)
         {
-            this.Close();
+            Close();
         }
 
         private void SelectionChanged(object sender, EventArgs e)
@@ -73,8 +74,6 @@ namespace KarrotSoundProduction
 
         private void Confirm(object sender, EventArgs e)
         {
-            float fadeInTime = 0;
-            float fadeOutTime = 0;
             if (soundFileChooser.File == null)
             {
                 new ErrorDialog("A sound file is required.").Show();
@@ -85,25 +84,30 @@ namespace KarrotSoundProduction
                 new ErrorDialog("Please choose a hotkey.").Show();
                 return;
             }
-            if (!float.TryParse(fadeInTimeEntry.Text, out fadeInTime))
+            if (!float.TryParse(fadeInTimeEntry.Text, out float fadeInTime))
             {
                 new ErrorDialog("Invalid fade in time.").Show();
                 return;
             }
-            if (!float.TryParse(fadeInTimeEntry.Text, out fadeOutTime))
+            if (!float.TryParse(fadeOutTimeEntry.Text, out float fadeOutTime))
             {
                 new ErrorDialog("Invalid fade out time.").Show();
+                return;
+            }
+            if (!float.TryParse(speedEntry.Text, out float speed))
+            {
+                new ErrorDialog("Invalid speed.").Show();
                 return;
             }
             string originalFileName = System.IO.Path.GetFullPath(soundFileChooser.File.Path);
             string fileName = Utils.GetWavePath(originalFileName);
             Console.WriteLine(Utils.GetFileFormat(fileName));
-            
+
             Console.WriteLine(fileName);
-            SoundConfiguration sound = new(fileName, key.Value, null, originalFileName, (int)(fadeInTime * 1000), (int)(fadeOutTime * 1000), 100, 0);
+            SoundConfiguration sound = new(fileName, key.Value, null, originalFileName, (int)(fadeInTime * 1000), (int)(fadeOutTime * 1000), 100, 0, speed);
             SoundboardConfiguration.CurrentConfig.AddSound(sound);
             Console.WriteLine(SoundboardConfiguration.CurrentConfig);
-            this.Close();
+            Close();
             Program.MainWindow.UpdateMainText();
         }
     }

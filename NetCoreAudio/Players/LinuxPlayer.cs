@@ -29,11 +29,13 @@ namespace NetCoreAudio.Players
                 {
                     PlayerBackend.PulseAudio => $"paplay --volume={CurrentVolume * 65536 / 100}",
                     PlayerBackend.Pipewire => $"pw-play --volume {(float)CurrentVolume / 100}",
-                    PlayerBackend.ALSA => $"",
+                    PlayerBackend.ALSA => $"aplay",
                     _ => "echo '[KSP] Internal error: Unknown backend- could not play file'"
                 };
             }
         }
+
+        public override Task SetVolume(double log2Scale) => SetVolume((int)Math.Pow(2, Math.Log10(log2Scale)));
 
         public override Task SetVolume(int percent)
         {

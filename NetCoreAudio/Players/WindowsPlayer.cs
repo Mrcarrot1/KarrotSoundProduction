@@ -125,6 +125,8 @@ namespace NetCoreAudio.Players
             return Task.CompletedTask;
         }
 
+        public Task SetVolume(double log2Scale) => SetVolume((int)Math.Pow(2, Math.Log10(log2Scale)));
+
         public Task SetVolume(int percent)
         {
             if (percent > 100) percent = 100;
